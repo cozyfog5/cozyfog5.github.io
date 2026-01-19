@@ -12,11 +12,42 @@
 
   <div class="container">
     <div class="panel">
-      <label for="inputA">Input Text A</label>
+      <label for="inputA">Paste the first message in the room thread here</label>
       <div class="textarea-wrapper">
+        <!-- Looks ugly, but multiline placeholder text requires explicit carraige returns. (No \n or similar allowed.) -->
         <textarea
           id="inputA"
-          placeholder="Paste first block of text here..."
+          placeholder="`Room 1 - Player List`
+`1.` Player A (12000 MMR)
+`2.` Player B (11500 MMR)
+`3.` Player C (11000 MMR)
+`4.` Player D (10500 MMR)
+`5.` Player E (10000 MMR)
+`6.` Player F (9500 MMR)
+`7.` Player G (9000 MMR)
+`8.` Player H (8500 MMR)
+`9.` Player I (8000 MMR)
+`10.` Player J (7500 MMR)
+`11.` Player K (7000 MMR)
+`12.` Player L (6500 MMR)
+`13.` Player M (6000 MMR)
+`14.` Player N (5500 MMR)
+`15.` Player O (5000 MMR)
+`16.` Player P (4500 MMR)
+`17.` Player Q (4000 MMR)
+`18.` Player R (3500 MMR)
+`19.` Player S (3000 MMR)
+`20.` Player T (2500 MMR)
+`21.` Player U (2000 MMR)
+`22.` Player V (1500 MMR)
+`23.` Player W (1000 MMR)
+`24.` Player X (500 MMR)
+
+Host: **1. Player C**
+
+<@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999>
+
+If you need staff's assistance, use the `/ping_staff` command in this channel."
           aria-label="Input text A"
         ></textarea>
         <button
@@ -32,11 +63,36 @@
     </div>
 
     <div class="panel">
-      <label for="inputB">Input Text B</label>
+      <label for="inputB">Paste the scoreboard submission text here</label>
       <div class="textarea-wrapper">
+        <!-- Still looks ugly, but again the multiline placeholder text requires explicit carraige returns. (No \n or similar allowed.) -->
         <textarea
           id="inputB"
-          placeholder="Paste second block of text here..."
+          placeholder="!submit 1 Q
+Player A 34
+Player B 86
+Player C 94
+Player D 30
+Player E 110
+Player F 66
+Player G 26
+Player H 114
+Player I 98
+Player J 58
+Player K 90
+Player L 38
+Player M 54
+Player N 70
+Player O 78
+Player P 50
+Player Q 106
+Player R 82
+Player S 46
+Player T 118
+Player U 102
+Player V 42
+Player W 74
+Player X 62"
           aria-label="Input text B"
         ></textarea>
         <button
@@ -52,7 +108,7 @@
     </div>
 
     <div class="panel">
-      <label for="output">Generated Output</label>
+      <label for="output">Text describing MMR changes (click <strong>Generate</strong>)</label>
       <textarea
         id="output"
         placeholder="Generated text will appear here..."

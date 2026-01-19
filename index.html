@@ -130,19 +130,66 @@ Player X 62"
   <div id="statusBar" role="status" aria-live="polite"></div>
 
   <section class="notes">
-    <h2>Usage & Notes</h2>
+    <h2>Usage</h2>
     <p>
-      Paste text into the two input fields, then click
-      <strong>Generate</strong> (or press <strong>Ctrl+Enter</strong>)
-      to produce output.
+      This is an <strong>unofficial</strong> tool for estimating matchmaking rating (MMR) adjustments in 24-player FFA mogis held in MK Lounge.
+    </p>
+    <ol>
+      <li>Copy the first message in the Discord thread used to conduct the mogi, then paste it into the first box. This describes player names and starting MMRs.</li>
+      <li>Copy the message used to submit the scoreboard and paste it into the second box. This describes players&rsquo; performances.</li>
+      <li>Click <strong>Calculate MMR Changes</strong> (or press <strong>Ctrl+Enter</strong>) to calculate MMR adjustments.</li>
+      <li>Click <strong>Copy MMR Changes</strong> to copy the MMR adjustments, then paste the text into the Discord thread to share it with everybody.</li>
+    </ol>
+    <p>
+      <strong>Hint:</strong> To quickly copy a Discord message, right-click the message and select <strong>Copy Text</strong>.
+    </p>
+    <h2>Caveats</h2>
+    <ul>
+      <li>This tool is not aware of any MMR changes made between the opening of the room thread and the posting of the scoreboard. Because of this, MMR adjustments will tend to vary slightly from their actual amounts.</li>
+      <li>This tool does not automatically account for substitute players. If substitutes appear on the scoreboard, then you must modify the first input to include the corresponding players and their starting MMRs as if they had participated the whole time.</li>
+      <li>This tool assumes every player has completed their placement match.</li>
+    </ul>
+    <h2>How are rating adjustments calculated?</h2>
+    <p>
+      Cynda describes the algorithm in <a href="https://docs.google.com/document/d/1IowqAokeJqQWhjJ__TcQn5hbDqoK5irUVmvb441-90Q">this document</a>.
     </p>
     <p>
-      This tool runs entirely in your browser and does not send data anywhere.
-      Customize behavior by editing <code>processText()</code> in
-      <code>script.js</code>.
+      Each mogi is treated as a collection of one-versus-one contests between players.
+      For each contest, a player gains MMR when they either place better than their opponent or tie their opponent when the opponent has a higher rating; otherwise, the player loses MMR and their opponent gains MMR instead.
+      The results from every head-to-head matchup are summed together and rounded to produce the player's net MMR adjustment for the mogi.
     </p>
+
+    <table style="margin:auto">
+      <tr>
+        <td>Matchup result</td><td>Calculation</td><td>Rating outcomes</td>
+      </tr>
+      <tr>
+        <td>Player A beats Player B</td>
+        <td>
+          $$\Delta\mathit{MMR} = {30 \over 1 + 11^{-\left({{\mathit{MMR}_B - \mathit{MMR}_A \over 9500} - 0.2891}\right)}}$$
+        </td>
+        <td>
+          Player A gains \(\Delta\mathit{MMR}\).<br/>Player B loses \(\Delta\mathit{MMR}\).
+        </td>
+      </tr>
+      <tr>
+        <td>Player A ties Player B</td>
+        <td>
+          $$\Delta\mathit{MMR} = {30 \over 1 + 11^{-\left({{|\mathit{MMR}_B - \mathit{MMR}_A| \over 9500} - 0.2891}\right)}}-10$$
+        </td>
+        <td>
+          Player with lower MMR gains \(\Delta\mathit{MMR}\).<br/>Player with higher MMR loses \(\Delta\mathit{MMR}\).<br/>No change if players have equal MMR.
+        </td>
+      </tr>
+    </table>
+    <h3>Notes</h3>
+    <ul>
+      <li>The margin of victory or defeat in each head-to-head contest is unimportant. Whether Player A beats Player B by 100 points or 1 point, by 23 places or by 1 place, it counts the same.</li>
+      <li>The method uses what is called a <a href="https://en.wikipedia.org/wiki/Logistic_function">logistic function</a>. The specific function used in 24-player FFA mogis is calibrated so that beating someone with the same MMR nets 20 points and no matchup can yield a gain or loss greater than 30 points regardless of the players&rsquo; MMR differential.</li>
+    </ul>
   </section>
 
   <script src="script.js"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
 </body>
 </html>

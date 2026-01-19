@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Text Processor</title>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>Simple One-Page Text Processor</h1>
+
+  <div class="container">
+    <div class="panel">
+      <label for="inputA">Input Text A</label>
+      <div class="textarea-wrapper">
+        <textarea
+          id="inputA"
+          placeholder="Paste first block of text here..."
+          aria-label="Input text A"
+        ></textarea>
+        <button
+          type="button"
+          class="clear-overlay"
+          data-target="inputA"
+          title="Clear Input Text A"
+          aria-label="Clear input text A"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <label for="inputB">Input Text B</label>
+      <div class="textarea-wrapper">
+        <textarea
+          id="inputB"
+          placeholder="Paste second block of text here..."
+          aria-label="Input text B"
+        ></textarea>
+        <button
+          type="button"
+          class="clear-overlay"
+          data-target="inputB"
+          title="Clear Input Text B"
+          aria-label="Clear input text B"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <label for="output">Generated Output</label>
+      <textarea
+        id="output"
+        placeholder="Generated text will appear here..."
+        aria-label="Generated output"
+        readonly
+      ></textarea>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="generateBtn" title="Ctrl+Enter">
+      Generate (Ctrl+Enter)
+    </button>
+    <button id="copyBtn">
+      Copy Output
+    </button>
+  </div>
+
+  <div id="statusBar" role="status" aria-live="polite"></div>
+
+  <section class="notes">
+    <h2>Usage & Notes</h2>
+    <p>
+      Paste text into the two input fields, then click
+      <strong>Generate</strong> (or press <strong>Ctrl+Enter</strong>)
+      to produce output.
+    </p>
+    <p>
+      This tool runs entirely in your browser and does not send data anywhere.
+      Customize behavior by editing <code>processText()</code> in
+      <code>script.js</code>.
+    </p>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>

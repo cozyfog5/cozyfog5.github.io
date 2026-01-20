@@ -3,35 +3,40 @@ const scoreboardInput = document.getElementById('scoreboardInput');
 const mmrTableOutput = document.getElementById('mmrTableOutput');
 const calculateButton = document.getElementById('calculateButton');
 const copyButton = document.getElementById('copyButton');
+const mogiHeaderStatusBar = document.getElementById('mogiHeaderStatusBar');
+const scoreboardStatusBar = document.getElementById('scoreboardStatusBar');
 const mmrTableStatusBar = document.getElementById('mmrTableStatusBar');
 
 let mmrTableStatusBarTimeout = null;
 
-function setMmrTableStatus(message) {
-  mmrTableStatusBar.textContent = message;
-  if (mmrTableStatusBarTimeout) {
-    clearTimeout(mmrTableStatusBarTimeout);
-  }
-  if (message) {
-    mmrTableStatusBarTimeout = setTimeout(() => {
-      mmrTableStatusBar.textContent = '';
-    }, 3000);
-  }
+function setStatus(target, message, isPositive) {
+  target.textContent = message;
+  // if (mmrTableStatusBarTimeout) {
+  //   clearTimeout(mmrTableStatusBarTimeout);
+  // }
+  // if (message) {
+  //   mmrTableStatusBarTimeout = setTimeout(() => {
+  //     mmrTableStatusBar.textContent = '';
+  //   }, 3000);
+  // }
 }
 
 // Generate output
 calculateButton.addEventListener('click', () => {
+  setStatus(mogiHeaderStatusBar, "", true);
+  setStatus(scoreboardStatusBar, "", true);
+  setStatus(mmrTableStatusBar, "", true);
   mmrTableOutput.value = getMmrChangeSummaryText(mogiHeaderInput.value, scoreboardInput.value);
-  setMmrTableStatus('Output generated.');
+  setStatus(mmrTableStatusBar, "Output generated.", true);
 });
 
 // Copy output
 copyButton.addEventListener('click', async () => {
   try {
     await navigator.clipboard.writeText(mmrTableOutput.value);
-    setMmrTableStatus('Output copied to clipboard.');
+    setStatus(mmrTableStatusBar, "Output copied to clipboard.", true);
   } catch {
-    setMmrTableStatus('Failed to copy output.');
+    setStatus(mmrTableStatusBar, "Failed to copy output.", false);
   }
 });
 
@@ -42,7 +47,6 @@ document.querySelectorAll('.clear-overlay').forEach(btn => {
     const textarea = document.getElementById(targetId);
     textarea.value = '';
     textarea.focus();
-    //setMmrTableStatus('Input cleared.');
   });
 });
 
@@ -109,11 +113,11 @@ function processText(a, b) {
 
   // Validate maps: Make sure each has 24 entries and identical keys.
   if (nameMmrMap.size != 24) {
-    setMmrTableStatus("Detected " + nameMmrMap.size + " unique names instead of the expected 24. (This tool currently supports only 24-player FFA formats.)");
+    setStatus(mogiHeaderStatusBar, "Detected " + nameMmrMap.size + " unique names instead of the expected 24. (This tool currently supports only 24-player FFA formats.)", false);
     return;
   }
   if (nameScoreMap.size != 24) {
-    setMmrTableStatus("Detected " + nameScoreMap.size + " unique scoreboard entries instead of the expected 24.");
+    setStatus(scoreboardStatusBar, "Detected " + nameScoreMap.size + " unique scoreboard entries instead of the expected 24.", false);
     return;
   }
 

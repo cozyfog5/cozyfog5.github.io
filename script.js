@@ -42,7 +42,7 @@ document.querySelectorAll('.clear-overlay').forEach(btn => {
     const textarea = document.getElementById(targetId);
     textarea.value = '';
     textarea.focus();
-    setStatus('Input cleared.');
+    //setStatus('Input cleared.');
   });
 });
 

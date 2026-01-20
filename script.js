@@ -5,10 +5,15 @@ const generateBtn = document.getElementById('generateBtn');
 const copyBtn = document.getElementById('copyBtn');
 const statusBar = document.getElementById('statusBar');
 
+let statusBarTimeout = null;
+
 function setStatus(message) {
   statusBar.textContent = message;
+  if (statusBarTimeout) {
+    clearTimeout(statusBarTimeout);
+  }
   if (message) {
-    setTimeout(() => {
+    statusBarTimeout = setTimeout(() => {
       statusBar.textContent = '';
     }, 3000);
   }

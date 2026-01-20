@@ -96,11 +96,16 @@ function parseScoreboardInput(input) {
   let nameScoreMap = new Map();
   let linesArr = input.split(/\r?\n/);
   for (const line of linesArr) {
-    let scoreTest = line.match(/^\s*(.+)\s+(\d+)\s*$/);
+    let scoreTest = line.match(/^\s*([^\+]+?)\s+(\d+)(\s*\+\s*(\d+))?\s*$/);
     if (scoreTest) {
+      let score = Number(scoreTest[2]);
+      // Special logic for cases where a scoreboard is entered with DC points manually entered like 52+7.
+      if (scoreTest.length >= 5 && scoreTest[4]) {
+        score += Number(scoreTest[4]);
+      }
       // Replace is needed for backslashes that get added before punctuation marks otherwise used
       // for Discord formatting (including _underscores_, which appear frequently).
-      nameScoreMap.set(scoreTest[1].replace(/\\/g, ""), scoreTest[2]);
+      nameScoreMap.set(scoreTest[1].replace(/\\/g, ""), score);
     }
   }
   return nameScoreMap;

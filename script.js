@@ -160,15 +160,15 @@ function getMmrChangeSummaryText(a, b) {
     }
   }
   
-  let mmrAdjustmentText = "```Expected MMR Changes (unofficial)\n";
+  let mmrAdjustmentText = "```Expected MMR Changes (unofficial)";
   for (const player of players) {
     let mmrChangeText = (player.mmrChange > 0 ? "+" : "") + player.mmrChange;
-    mmrAdjustmentText += player.name + " ".repeat(longestNameLength - player.name.length) + ": " +
+    mmrAdjustmentText += "\n" + player.name + " ".repeat(longestNameLength - player.name.length) + ": " +
         " ".repeat(longestMmrBeforeLength - String(player.mmrBefore).length) + player.mmrBefore + " --> " +
         " ".repeat(longestMmrAfterLength - String(player.mmrAfter).length) + player.mmrAfter + " (" +
-        " ".repeat(4 - mmrChangeText.length) + mmrChangeText + ")\n";
+        " ".repeat(4 - mmrChangeText.length) + mmrChangeText + ")";
   }
 
-  mmrAdjustmentText += "\nMade at https://cozyfog5.github.io```";
+  mmrAdjustmentText += "```\n-# Made at https://cozyfog5.github.io. No warranty implied. May contain errors.";
   return mmrAdjustmentText;
 }

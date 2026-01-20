@@ -112,26 +112,24 @@ Player X 62"
     </div>
 
     <div class="panel">
-      <label for="output">Rating change summary (Click <strong>Calculate MMR Changes</strong> to generate)</label>
+      <label for="output">Rating change summary</label>
       <textarea
         id="output"
         placeholder="Generated text will appear here..."
         aria-label="Generated output"
         readonly
       ></textarea>
+      <div class="controls">
+        <button id="generateBtn" class="primary" title="Ctrl+Enter">
+          Calculate (Ctrl+Enter)
+        </button>
+        <button id="copyBtn" class="primary">
+          Copy
+        </button>
+      </div>
+    <div id="statusBar" role="status" aria-live="polite"></div>
     </div>
   </div>
-
-  <div class="controls">
-    <button id="generateBtn" class="primary" title="Ctrl+Enter">
-      Calculate MMR Changes (Ctrl+Enter)
-    </button>
-    <button id="copyBtn" class="primary">
-      Copy MMR Changes
-    </button>
-  </div>
-
-  <div id="statusBar" role="status" aria-live="polite"></div>
 
   <section class="notes">
     <h2>Usage</h2>
@@ -141,8 +139,8 @@ Player X 62"
     <ol>
       <li>Copy the first message in the Discord thread used to conduct the mogi, then paste it into the first box. This describes player names and starting MMRs.</li>
       <li>Copy the message used to submit the scoreboard and paste it into the second box. This describes players&rsquo; performances.</li>
-      <li>Click <strong>Calculate MMR Changes</strong> (or press <strong>Ctrl+Enter</strong>) to calculate MMR adjustments.</li>
-      <li>Click <strong>Copy MMR Changes</strong> to copy the MMR adjustments, then paste the text into the Discord thread to share it with everybody.</li>
+      <li>Click <strong>Calculate</strong> (or press <strong>Ctrl+Enter</strong>) to calculate MMR adjustments.</li>
+      <li>Click <strong>Copy</strong> to copy the MMR adjustments, then paste the text into the Discord thread to share it with everybody.</li>
     </ol>
     <p>
       <strong>Hint:</strong> To quickly copy a Discord message, right-click the message and select <strong>Copy Text</strong>.

@@ -21,7 +21,7 @@ function setStatus(message) {
 
 // Generate output
 generateBtn.addEventListener('click', () => {
-  output.value = processText(inputA.value, inputB.value);
+  output.value = getMmrChangeSummaryText(inputA.value, inputB.value);
   setStatus('Output generated.');
 });
 
@@ -105,7 +105,7 @@ function parseScoreboardInput(input) {
 function processText(a, b) {
   let nameMmrMap = parseHeaderInput(a);
   let nameScoreMap = parseScoreboardInput(b);
-  let placeNameMap = new Map();
+  let players = new Array();
 
   // Validate maps: Make sure each has 24 entries and identical keys.
   if (nameMmrMap.size != 24) {
@@ -119,24 +119,56 @@ function processText(a, b) {
 
   // TODO: Add validation to ensure names are 1:1 between maps.
 
-  let mmrAdjustmentText = "```Expected MMR Changes (unofficial)\n";
   for (const [name1, mmr1] of nameMmrMap) {
-    let mmrAdjustment = 0;
-    let place = 1;
-    let mmrAfter = 0;
+    let player = {name: name1, mmrBefore: mmr1, mmrChange: 0, mmrAfter: 0, score: 0, place: 0};
+    player.score = nameScoreMap.get(player.name);  // TODO: Error handling...
     for (const [name2, mmr2] of nameMmrMap) {
-      const decision = Math.sign(nameScoreMap.get(name1) - nameScoreMap.get(name2));
-      place += (decision === -1 ? 1 : 0);
-      mmrAdjustment += calculateMmrAdjustment(mmr1, mmr2, decision);
+      const decision = Math.sign(player.score - nameScoreMap.get(name2));
+      player.place += (decision === -1 ? 1 : 0);
+      player.mmrChange += calculateMmrAdjustment(player.mmrBefore, mmr2, decision);
     }
-    mmrAdjustment = Math.round(mmrAdjustment);
-    mmrAfter = Math.ceil(mmr1 + mmrAdjustment, 0);
-    mmrAdjustment = mmrAfter - mmr1;
+    player.mmrChange = Math.round(player.mmrChange);
+    player.mmrAfter = Math.ceil(player.mmrBefore + player.mmrChange, 0);  // Need to ensure that MMR doesn't drop below 0 under any circumstances.
+    player.mmrChange = player.mmrAfter - player.mmrBefore;  // Update MMR adjustment to reflect possible bounding by 0.
+    players.push(player);
+  }
 
-    mmrAdjustmentText += name1 + ": " + mmr1 + " --> " + mmrAfter + " (" + mmrAdjustment + ")\n";
+  // Sort players best placement to worst placement, then by ascending MMR (so that better adjustments tend to be upward on the table).
+  players.sort((a, b) => {
+    return a.place !== b.place ? a.place - b.place : a.mmrBefore - b.mmrBefore;
+  });
+
+  return players;
+}
+
+function getMmrChangeSummaryText(a, b) {
+  const players = processText(a, b);
+  let longestNameLength = 0;
+  let longestMmrBeforeLength = 0;
+  let longestMmrAfterLength = 0;
+
+  // Record lengths of names and MMRs
+  for (const player of players) {
+    if (player.name.length > longestNameLength) {
+      longestNameLength = player.name.length;
+    }
+    if (String(player.mmrBefore).length > longestMmrBeforeLength) {
+      longestMmrBeforeLength = String(player.mmrBefore).length;
+    }
+    if (String(player.mmrAfter).length > longestMmrAfterLength) {
+      longestMmrAfterLength = String(player.mmrAfter).length;
+    }
+  }
+  
+  let mmrAdjustmentText = "```Expected MMR Changes (unofficial)\n";
+  for (const player of players) {
+    let mmrChangeText = (player.mmrChange > 0 ? "+" : "") + player.mmrChange;
+    mmrAdjustmentText += player.name + " ".repeat(longestNameLength - player.name.length) + ": " +
+        " ".repeat(longestMmrBeforeLength - String(player.mmrBefore).length) + player.mmrBefore + " --> " +
+        " ".repeat(longestMmrAfterLength - String(player.mmrAfter).length) + player.mmrAfter + " (" +
+        " ".repeat(4 - mmrChangeText.length) + mmrChangeText + ")\n";
   }
 
   mmrAdjustmentText += "\nMade at https://cozyfog5.github.io```";
-
   return mmrAdjustmentText;
 }

@@ -12,11 +12,11 @@
 
   <div class="container">
     <div class="panel">
-      <label for="inputA">Paste the first message in the room thread here</label>
+      <label for="mogiHeaderInput">Paste the first message in the room thread here</label>
       <div class="textarea-wrapper">
         <!-- Looks ugly, but multiline placeholder text requires explicit carraige returns. (No \n or similar allowed.) -->
         <textarea
-          id="inputA"
+          id="mogiHeaderInput"
           placeholder="EXAMPLE:
 
 `Room 1 - Player List`
@@ -55,7 +55,7 @@ If you need staff's assistance, use the `/ping_staff` command in this channel."
         <button
           type="button"
           class="clear-overlay"
-          data-target="inputA"
+          data-target="mogiHeaderInput"
           title="Clear Input Text A"
           aria-label="Clear input text A"
         >
@@ -65,11 +65,11 @@ If you need staff's assistance, use the `/ping_staff` command in this channel."
     </div>
 
     <div class="panel">
-      <label for="inputB">Paste the scoreboard submission text here</label>
+      <label for="scoreboardInput">Paste the scoreboard submission text here</label>
       <div class="textarea-wrapper">
         <!-- Still looks ugly, but again the multiline placeholder text requires explicit carraige returns. (No \n or similar allowed.) -->
         <textarea
-          id="inputB"
+          id="scoreboardInput"
           placeholder="EXAMPLE:
 
 !submit 1 Q
@@ -102,7 +102,7 @@ Player X 62"
         <button
           type="button"
           class="clear-overlay"
-          data-target="inputB"
+          data-target="scoreboardInput"
           title="Clear Input Text B"
           aria-label="Clear input text B"
         >
@@ -112,18 +112,18 @@ Player X 62"
     </div>
 
     <div class="panel">
-      <label for="output">Rating change summary</label>
+      <label for="mmrTableOutput">Rating change summary</label>
       <textarea
-        id="output"
+        id="mmrTableOutput"
         placeholder="Generated text will appear here..."
         aria-label="Generated output"
         readonly
       ></textarea>
       <div class="controls">
-        <button id="generateBtn" class="primary" title="Ctrl+Enter">
+        <button id="calculateButton" class="primary" title="Ctrl+Enter">
           Calculate (Ctrl+Enter)
         </button>
-        <button id="copyBtn" class="primary">
+        <button id="copyButton" class="primary">
           Copy
         </button>
       </div>

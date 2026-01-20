@@ -1,8 +1,8 @@
-const inputA = document.getElementById('inputA');
-const inputB = document.getElementById('inputB');
-const output = document.getElementById('output');
-const generateBtn = document.getElementById('generateBtn');
-const copyBtn = document.getElementById('copyBtn');
+const mogiHeaderInput = document.getElementById('mogiHeaderInput');
+const scoreboardInput = document.getElementById('scoreboardInput');
+const mmrTableOutput = document.getElementById('mmrTableOutput');
+const calculateButton = document.getElementById('calculateButton');
+const copyButton = document.getElementById('copyButton');
 const statusBar = document.getElementById('statusBar');
 
 let statusBarTimeout = null;
@@ -20,15 +20,15 @@ function setStatus(message) {
 }
 
 // Generate output
-generateBtn.addEventListener('click', () => {
-  output.value = getMmrChangeSummaryText(inputA.value, inputB.value);
+calculateButton.addEventListener('click', () => {
+  mmrTableOutput.value = getMmrChangeSummaryText(mogiHeaderInput.value, scoreboardInput.value);
   setStatus('Output generated.');
 });
 
 // Copy output
-copyBtn.addEventListener('click', async () => {
+copyButton.addEventListener('click', async () => {
   try {
-    await navigator.clipboard.writeText(output.value);
+    await navigator.clipboard.writeText(mmrTableOutput.value);
     setStatus('Output copied to clipboard.');
   } catch {
     setStatus('Failed to copy output.');
@@ -50,7 +50,7 @@ document.querySelectorAll('.clear-overlay').forEach(btn => {
 document.addEventListener('keydown', (event) => {
   if (event.ctrlKey && event.key === 'Enter') {
     event.preventDefault();
-    generateBtn.click();
+    calculateButton.click();
   }
 });
 

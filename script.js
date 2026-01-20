@@ -113,11 +113,11 @@ function processText(a, b) {
 
   // Validate maps: Make sure each has 24 entries and identical keys.
   if (nameMmrMap.size != 24) {
-    setStatus(mogiHeaderStatusBar, "Detected " + nameMmrMap.size + " unique names instead of the expected 24. (This tool currently supports only 24-player FFA formats.)", false);
+    setStatus(mogiHeaderStatusBar, "Detected " + nameMmrMap.size + " unique name" + (nameMmrMap.size === 1 ? "" : "s") + " instead of the expected 24. (This tool currently supports only 24-player FFA mogis.)", false);
     return;
   }
   if (nameScoreMap.size != 24) {
-    setStatus(scoreboardStatusBar, "Detected " + nameScoreMap.size + " unique scoreboard entries instead of the expected 24.", false);
+    setStatus(scoreboardStatusBar, "Detected " + nameScoreMap.size + " unique scoreboard entr" + (nameScoreMap.size === 1 ? "y" : "ies") + " instead of the expected 24.", false);
     return;
   }
 

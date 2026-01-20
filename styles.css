@@ -92,7 +92,7 @@ button:hover {
   background: #1d4ed8;
 }
 
-#statusBar {
+#mmrTableStatusBar {
   min-height: 1.5rem;
   text-align: center;
   font-size: 0.9rem;

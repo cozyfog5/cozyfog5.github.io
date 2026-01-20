@@ -3,18 +3,18 @@ const scoreboardInput = document.getElementById('scoreboardInput');
 const mmrTableOutput = document.getElementById('mmrTableOutput');
 const calculateButton = document.getElementById('calculateButton');
 const copyButton = document.getElementById('copyButton');
-const statusBar = document.getElementById('statusBar');
+const mmrTableStatusBar = document.getElementById('mmrTableStatusBar');
 
-let statusBarTimeout = null;
+let mmrTableStatusBarTimeout = null;
 
-function setStatus(message) {
-  statusBar.textContent = message;
-  if (statusBarTimeout) {
-    clearTimeout(statusBarTimeout);
+function setMmrTableStatus(message) {
+  mmrTableStatusBar.textContent = message;
+  if (mmrTableStatusBarTimeout) {
+    clearTimeout(mmrTableStatusBarTimeout);
   }
   if (message) {
-    statusBarTimeout = setTimeout(() => {
-      statusBar.textContent = '';
+    mmrTableStatusBarTimeout = setTimeout(() => {
+      mmrTableStatusBar.textContent = '';
     }, 3000);
   }
 }
@@ -22,16 +22,16 @@ function setStatus(message) {
 // Generate output
 calculateButton.addEventListener('click', () => {
   mmrTableOutput.value = getMmrChangeSummaryText(mogiHeaderInput.value, scoreboardInput.value);
-  setStatus('Output generated.');
+  setMmrTableStatus('Output generated.');
 });
 
 // Copy output
 copyButton.addEventListener('click', async () => {
   try {
     await navigator.clipboard.writeText(mmrTableOutput.value);
-    setStatus('Output copied to clipboard.');
+    setMmrTableStatus('Output copied to clipboard.');
   } catch {
-    setStatus('Failed to copy output.');
+    setMmrTableStatus('Failed to copy output.');
   }
 });
 
@@ -42,7 +42,7 @@ document.querySelectorAll('.clear-overlay').forEach(btn => {
     const textarea = document.getElementById(targetId);
     textarea.value = '';
     textarea.focus();
-    //setStatus('Input cleared.');
+    //setMmrTableStatus('Input cleared.');
   });
 });
 
@@ -109,11 +109,11 @@ function processText(a, b) {
 
   // Validate maps: Make sure each has 24 entries and identical keys.
   if (nameMmrMap.size != 24) {
-    setStatus("Detected " + nameMmrMap.size + " unique names instead of the expected 24. (This tool currently supports only 24-player FFA formats.)");
+    setMmrTableStatus("Detected " + nameMmrMap.size + " unique names instead of the expected 24. (This tool currently supports only 24-player FFA formats.)");
     return;
   }
   if (nameScoreMap.size != 24) {
-    setStatus("Detected " + nameScoreMap.size + " unique scoreboard entries instead of the expected 24.");
+    setMmrTableStatus("Detected " + nameScoreMap.size + " unique scoreboard entries instead of the expected 24.");
     return;
   }
 

@@ -81,7 +81,7 @@ function parseHeaderInput(input) {
   let nameMmrMap = new Map();
   let linesArr = input.split(/\r?\n/);
   for (const line of linesArr) {
-    let nameTest = line.match(/^`\d+\.` (.+) \((\d+) MMR\)$/);
+    let nameTest = line.match(/^\s*`?\d+\.`?\s*(.+?)\s*\((\d+) MMR\)\s*$/);
     if (nameTest) {
       // Replace is needed for backslashes that get added before punctuation marks otherwise used
       // for Discord formatting (including _underscores_, which appear frequently).
@@ -96,7 +96,7 @@ function parseScoreboardInput(input) {
   let nameScoreMap = new Map();
   let linesArr = input.split(/\r?\n/);
   for (const line of linesArr) {
-    let scoreTest = line.match(/^(.+) (\d+)$/);
+    let scoreTest = line.match(/^\s*(.+)\s+(\d+)\s*$/);
     if (scoreTest) {
       // Replace is needed for backslashes that get added before punctuation marks otherwise used
       // for Discord formatting (including _underscores_, which appear frequently).

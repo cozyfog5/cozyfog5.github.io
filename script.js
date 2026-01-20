@@ -26,7 +26,8 @@ calculateButton.addEventListener('click', () => {
   setStatus(mogiHeaderStatusBar, "", true);
   setStatus(scoreboardStatusBar, "", true);
   setStatus(mmrTableStatusBar, "", true);
-  mmrTableOutput.value = getMmrChangeSummaryText(mogiHeaderInput.value, scoreboardInput.value);
+  let players_info = processText(mogiHeaderInput.value, scoreboardInput.value);
+  mmrTableOutput.value = getMmrChangeSummaryText(players_info);
   setStatus(mmrTableStatusBar, "Output generated.", true);
 });
 
@@ -150,14 +151,13 @@ function processText(a, b) {
   return players;
 }
 
-function getMmrChangeSummaryText(a, b) {
-  const players = processText(a, b);
+function getMmrChangeSummaryText(players_info) {
   let longestNameLength = 0;
   let longestMmrBeforeLength = 0;
   let longestMmrAfterLength = 0;
 
   // Record lengths of names and MMRs
-  for (const player of players) {
+  for (const player of players_info) {
     if (player.name.length > longestNameLength) {
       longestNameLength = player.name.length;
     }
@@ -170,7 +170,7 @@ function getMmrChangeSummaryText(a, b) {
   }
   
   let mmrAdjustmentText = "```Expected MMR Changes (unofficial)";
-  for (const player of players) {
+  for (const player of players_info) {
     let mmrChangeText = (player.mmrChange > 0 ? "+" : "") + player.mmrChange;
     mmrAdjustmentText += "\n" + player.name + " ".repeat(longestNameLength - player.name.length) + ": " +
         " ".repeat(longestMmrBeforeLength - String(player.mmrBefore).length) + player.mmrBefore + " --> " +

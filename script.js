@@ -95,6 +95,19 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
+// Ctrl+Alt+Shift+T to produce sample inputs
+document.addEventListener('keydown', (event) => {
+  if (event.ctrlKey && event.altKey && event.shiftKey && event.key === 'T') {
+    event.preventDefault();
+    supplySampleText();
+  }
+});
+
+function supplySampleText() {
+  mogiHeaderInput.value = "`Room 1 - Player List`\n`1.` Player A (11277 MMR)\n`2.` Player B (11062 MMR)\n`3.` Player C (10444 MMR)\n`4.` Player D (9030 MMR)\n`5.` Player E (8026 MMR)\n`6.` Player F (6630 MMR)\n`7.` Player G (6515 MMR)\n`8.` Player H (6465 MMR)\n`9.` Player I (6458 MMR)\n`10.` Player J (6297 MMR)\n`11.` Player K (6145 MMR)\n`12.` Player L (6016 MMR)\n`13.` Player M (5662 MMR)\n`14.` Player N (5580 MMR)\n`15.` Player O (5418 MMR)\n`16.` Player P (5368 MMR)\n`17.` Player Q (4402 MMR)\n`18.` Player R (4115 MMR)\n`19.` Player S (4007 MMR)\n`20.` Player T (3915 MMR)\n`21.` Player U (3611 MMR)\n`22.` Player V (3288 MMR)\n`23.` Player W (2796 MMR)\n`24.` Player X (2469 MMR)";
+  scoreboardInput.value = "!submit 1 Q\nPlayer A 119\nPlayer B 76\nPlayer C 119\nPlayer D 89\nPlayer E 89\nPlayer F 93\nPlayer G 83\nPlayer H 77\nPlayer I 50\nPlayer J 79\nPlayer K 81\nPlayer L 90\nPlayer M 72\nPlayer N 68\nPlayer O 73\nPlayer P 61\nPlayer Q 75\nPlayer R 50\nPlayer S 38\nPlayer T 54\nPlayer U 47\nPlayer V 47\nPlayer W 56\nPlayer X 42";
+}
+
 // Decision: if 1, Player A wins; if -1, player B wins; if 0, Players A and B tie
 function calculateMmrAdjustment(mmrA, mmrB, decision) {
   const cap = 30;

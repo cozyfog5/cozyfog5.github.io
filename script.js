@@ -6,6 +6,8 @@ const copyButton = document.getElementById('copyButton');
 const mogiHeaderStatusBar = document.getElementById('mogiHeaderStatusBar');
 const scoreboardStatusBar = document.getElementById('scoreboardStatusBar');
 const mmrTableStatusBar = document.getElementById('mmrTableStatusBar');
+const kErrorWrongMmrMapSize = "wrong_mmr_map_size";
+const kErrorWrongScoreboardMapSize = "wrong_scoreboard_map_size"
 
 let mmrTableStatusBarTimeout = null;
 
@@ -26,13 +28,30 @@ calculateButton.addEventListener('click', () => {
   setStatus(mogiHeaderStatusBar, "", true);
   setStatus(scoreboardStatusBar, "", true);
   setStatus(mmrTableStatusBar, "", true);
-  let players_info = processText(mogiHeaderInput.value, scoreboardInput.value);
-  mmrTableOutput.value = getMmrChangeSummaryText(players_info);
+  mmrTableOutput.value = "";
+  let processTextResult = processText(mogiHeaderInput.value, scoreboardInput.value);
+  if (!processTextResult.ok) {
+    if (processTextResult.reason === kErrorWrongMmrMapSize) {
+      setStatus(mogiHeaderStatusBar, "Detected " + processTextResult.num_detected + " unique entr" + (processTextResult.num_detected === 1 ? "y" : "ies") + " instead of the expected " + processTextResult.num_expected + ". This tool currently supports only 24-player FFA mogis. If you are using this format, please confirm that the entire message was copied and that there are no formatting issues or duplicate names.", false);
+      return;
+    }
+    if (processTextResult.reason === kErrorWrongScoreboardMapSize) {
+      setStatus(scoreboardStatusBar, "Detected " + processTextResult.num_detected + " unique scoreboard entr" + (processTextResult.num_detected === 1 ? "y" : "ies") + " instead of the expected " + processTextResult.num_expected + ". Please confirm that the entire message was copied and that there are no formatting issues or duplicate names.", false);
+      return;
+    }
+  }
+  mmrTableOutput.value = getMmrChangeSummaryText(processTextResult.playersInfo);
   setStatus(mmrTableStatusBar, "Output generated.", true);
 });
 
 // Copy output
 copyButton.addEventListener('click', async () => {
+  if (mmrTableOutput.value === "") {
+    // Nothing to copy; just return instead of clearing the clipboard.
+    setStatus(mmrTableStatusBar, "Nothing to copy.", false);
+    return;
+  }
+
   try {
     await navigator.clipboard.writeText(mmrTableOutput.value);
     setStatus(mmrTableStatusBar, "Output copied to clipboard.", true);
@@ -115,16 +134,14 @@ function parseScoreboardInput(input) {
 function processText(a, b) {
   let nameMmrMap = parseHeaderInput(a);
   let nameScoreMap = parseScoreboardInput(b);
-  let players = new Array();
+  let playersInfo = new Array();
 
   // Validate maps: Make sure each has 24 entries and identical keys.
   if (nameMmrMap.size != 24) {
-    setStatus(mogiHeaderStatusBar, "Detected " + nameMmrMap.size + " unique name" + (nameMmrMap.size === 1 ? "" : "s") + " instead of the expected 24. (This tool currently supports only 24-player FFA mogis.)", false);
-    return;
+    return {ok: false, reason: kErrorWrongMmrMapSize, num_detected: nameMmrMap.size, num_expected: 24};
   }
   if (nameScoreMap.size != 24) {
-    setStatus(scoreboardStatusBar, "Detected " + nameScoreMap.size + " unique scoreboard entr" + (nameScoreMap.size === 1 ? "y" : "ies") + " instead of the expected 24.", false);
-    return;
+    return {ok: false, reason: kErrorWrongScoreboardMapSize, num_detected: nameScoreMap.size, num_expected: 24};
   }
 
   // TODO: Add validation to ensure names are 1:1 between maps.
@@ -140,24 +157,24 @@ function processText(a, b) {
     player.mmrChange = Math.round(player.mmrChange);
     player.mmrAfter = Math.ceil(player.mmrBefore + player.mmrChange, 0);  // Need to ensure that MMR doesn't drop below 0 under any circumstances.
     player.mmrChange = player.mmrAfter - player.mmrBefore;  // Update MMR adjustment to reflect possible bounding by 0.
-    players.push(player);
+    playersInfo.push(player);
   }
 
-  // Sort players best placement to worst placement, then by ascending MMR (so that better adjustments tend to be upward on the table).
-  players.sort((a, b) => {
+  // Sort playersInfo best placement to worst placement, then by ascending MMR (so that better adjustments tend to be upward on the table).
+  playersInfo.sort((a, b) => {
     return a.place !== b.place ? a.place - b.place : a.mmrBefore - b.mmrBefore;
   });
 
-  return players;
+  return {ok: true, playersInfo: playersInfo};
 }
 
-function getMmrChangeSummaryText(players_info) {
+function getMmrChangeSummaryText(playersInfo) {
   let longestNameLength = 0;
   let longestMmrBeforeLength = 0;
   let longestMmrAfterLength = 0;
 
   // Record lengths of names and MMRs
-  for (const player of players_info) {
+  for (const player of playersInfo) {
     if (player.name.length > longestNameLength) {
       longestNameLength = player.name.length;
     }
@@ -170,7 +187,7 @@ function getMmrChangeSummaryText(players_info) {
   }
   
   let mmrAdjustmentText = "```Expected MMR Changes (unofficial)";
-  for (const player of players_info) {
+  for (const player of playersInfo) {
     let mmrChangeText = (player.mmrChange > 0 ? "+" : "") + player.mmrChange;
     mmrAdjustmentText += "\n" + player.name + " ".repeat(longestNameLength - player.name.length) + ": " +
         " ".repeat(longestMmrBeforeLength - String(player.mmrBefore).length) + player.mmrBefore + " --> " +

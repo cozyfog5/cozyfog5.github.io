@@ -10,8 +10,6 @@ const kErrorWrongMmrMapSize = "wrong_mmr_map_size";
 const kErrorWrongScoreboardMapSize = "wrong_scoreboard_map_size";
 const kErrorMismatchedNames = "mismatched_names";
 
-let mmrTableStatusBarTimeout = null;
-
 function setStatus(target, message, isPositive) {
   target.textContent = message;
   if (isPositive) {

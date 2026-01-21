@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MK Lounge 24-player MMR Calculator</title>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>MK Lounge 24-player MMR Calculator</h1>
+
+  <div class="container">
+    <div class="panel">
+      <label for="mogiHeaderInput">Paste the first message in the room thread here</label>
+      <div class="textarea-wrapper">
+        <!-- Looks ugly, but multiline placeholder text requires explicit carraige returns. (No \n or similar allowed.) -->
+        <textarea
+          id="mogiHeaderInput"
+          placeholder="EXAMPLE:
+
+`Room 1 - Player List`
+`1.` Player A (12000 MMR)
+`2.` Player B (11500 MMR)
+`3.` Player C (11000 MMR)
+`4.` Player D (10500 MMR)
+`5.` Player E (10000 MMR)
+`6.` Player F (9500 MMR)
+`7.` Player G (9000 MMR)
+`8.` Player H (8500 MMR)
+`9.` Player I (8000 MMR)
+`10.` Player J (7500 MMR)
+`11.` Player K (7000 MMR)
+`12.` Player L (6500 MMR)
+`13.` Player M (6000 MMR)
+`14.` Player N (5500 MMR)
+`15.` Player O (5000 MMR)
+`16.` Player P (4500 MMR)
+`17.` Player Q (4000 MMR)
+`18.` Player R (3500 MMR)
+`19.` Player S (3000 MMR)
+`20.` Player T (2500 MMR)
+`21.` Player U (2000 MMR)
+`22.` Player V (1500 MMR)
+`23.` Player W (1000 MMR)
+`24.` Player X (500 MMR)
+
+Host: **1. Player C**
+
+<@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999> <@999999999999999999>
+
+If you need staff's assistance, use the `/ping_staff` command in this channel."
+          aria-label="Mogi header input"
+        ></textarea>
+        <button
+          type="button"
+          class="clear-overlay"
+          data-target="mogiHeaderInput"
+          title="Clear mogi header input"
+          aria-label="Clear mogi header input"
+        >
+          &times;
+        </button>
+      </div>
+      <div id="mogiHeaderStatusBar" class="statusBar" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="panel">
+      <label for="scoreboardInput">Paste the scoreboard submission text here</label>
+      <div class="textarea-wrapper">
+        <!-- Still looks ugly, but again the multiline placeholder text requires explicit carraige returns. (No \n or similar allowed.) -->
+        <textarea
+          id="scoreboardInput"
+          placeholder="EXAMPLE:
+
+!submit 1 Q
+Player A 34
+Player B 86
+Player C 94
+Player D 30
+Player E 110
+Player F 66
+Player G 26
+Player H 114
+Player I 98
+Player J 58
+Player K 90
+Player L 38
+Player M 54
+Player N 70
+Player O 78
+Player P 50
+Player Q 106
+Player R 82
+Player S 46
+Player T 118
+Player U 102
+Player V 42
+Player W 74
+Player X 62"
+          aria-label="Scoreboard input"
+        ></textarea>
+        <button
+          type="button"
+          class="clear-overlay"
+          data-target="scoreboardInput"
+          title="Clear scoreboard input"
+          aria-label="Clear scoreboard input"
+        >
+          &times;
+        </button>
+      </div>
+      <div id="scoreboardStatusBar" class="statusBar" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="panel">
+      <label for="mmrTableOutput">Rating change summary</label>
+      <textarea
+        id="mmrTableOutput"
+        placeholder="MMR changes will appear here after filling the inputs and clicking Calculate."
+        aria-label="Rating change summary"
+        readonly
+      ></textarea>
+      <div class="controls">
+        <button id="calculateButton" class="primary" title="Calculate MMR changes and generate rating change summary">
+          Calculate (Ctrl+Enter)
+        </button>
+        <button id="copyButton" class="primary" title="Copy rating change summary to clipboard">
+          Copy
+        </button>
+      </div>
+    <div id="mmrTableStatusBar" class="statusBar" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h2>Usage</h2>
+    <p>
+      This is an <strong>unofficial</strong> tool for estimating matchmaking rating (MMR) adjustments in 24-player FFA mogis held in MK Lounge.
+    </p>
+    <ol>
+      <li>Copy the first message in the Discord thread used to conduct the mogi, then paste it into the first box. This describes player names and starting MMRs.</li>
+      <li>Copy the message used to submit the scoreboard and paste it into the second box. This describes players&rsquo; performances.</li>
+      <li>Click <strong>Calculate</strong> (or press <strong>Ctrl+Enter</strong>) to calculate MMR adjustments.</li>
+      <li>Click <strong>Copy</strong> to copy the MMR adjustments, then paste the text into the Discord thread to share it with everybody.</li>
+    </ol>
+    <p>
+      <strong>Hint:</strong> To quickly copy a Discord message, right-click the message and select <strong>Copy Text</strong>.
+    </p>
+    <h2>Caveats</h2>
+    <ul>
+      <li>This tool is not aware of any MMR changes made between the opening of the room thread and the posting of the scoreboard. Because of this, MMR adjustments will tend to vary slightly from their actual amounts.</li>
+      <li>This tool does not automatically account for substitute players. If substitutes appear on the scoreboard, then you must modify the first input to include the corresponding players and their starting MMRs as if they had participated the whole time.</li>
+      <li>This tool assumes every player has completed their placement match.</li>
+    </ul>
+    <h2>How are rating adjustments calculated?</h2>
+    <p>
+      Cynda describes the algorithm in <a href="https://docs.google.com/document/d/1IowqAokeJqQWhjJ__TcQn5hbDqoK5irUVmvb441-90Q">this document</a>.
+    </p>
+    <p>
+      Each mogi is treated as a collection of one-versus-one contests between players.
+      For each contest, a player gains MMR when they either place better than their opponent or tie their opponent when the opponent has a higher rating; otherwise, the player loses MMR and their opponent gains MMR instead.
+      The results from every head-to-head matchup are summed together and rounded to produce the player's net MMR adjustment for the mogi.
+    </p>
+
+    <table class="mmrCalcFormulaTable">
+      <tr class="header">
+        <td>Matchup result</td><td>Calculation (24p FFA)</td><td>Rating outcomes</td>
+      </tr>
+      <tr>
+        <td>Player A beats Player B</td>
+        <td>
+          $$\Delta\mathit{MMR} = {30 \over 1 + 11^{-\left({{\mathit{MMR}_B - \mathit{MMR}_A \over 9500} - 0.2891}\right)}}$$
+        </td>
+        <td>
+          Player A gains \(\Delta\mathit{MMR}\).<br/>Player B loses \(\Delta\mathit{MMR}\).
+        </td>
+      </tr>
+      <tr>
+        <td>Player A ties Player B</td>
+        <td>
+          $$\Delta\mathit{MMR} = {30 \over 1 + 11^{-\left({{|\mathit{MMR}_B - \mathit{MMR}_A| \over 9500} - 0.2891}\right)}}-10$$
+        </td>
+        <td>
+          Player with lower MMR gains \(\Delta\mathit{MMR}\).<br/>Player with higher MMR loses \(\Delta\mathit{MMR}\).<br/>No change if players have equal MMR.
+        </td>
+      </tr>
+    </table>
+    <h3>Notes</h3>
+    <ul>
+      <li>The margin of victory or defeat in each head-to-head contest is unimportant. Whether Player A beats Player B by 100 points or 1 point, by 23 places or by 1 place, it counts the same.</li>
+      <li>The method uses what is called a <a href="https://en.wikipedia.org/wiki/Logistic_function">logistic function</a>. The specific function used in 24-player FFA mogis is calibrated so that beating someone with the same MMR nets 20 points and no matchup can yield a gain or loss greater than 30 points regardless of the players&rsquo; MMR differential.</li>
+    </ul>
+    <h2>About this site</h2>
+    <p>
+      This tool was created by <a href="https://www.github.com/cozyfog5">cozyfog5</a> and is based on the MMR algorithm and StatsBot both developed by Cynda, a.k.a. <a href="https://github.com/cyndaquilx">cyndaquilx</a>.
+    </p>
+    <p>
+      This website does not store or transmit user input. Still, as a best practice, please use the service as intended and do not enter sensitive information.
+    </p>
+    <p>
+      If you discover a bug or have a suggestion, please create a <a href="https://github.com/cozyfog5/cozyfog5.github.io/issues">GitHub issue</a> or contact cozyfog5 on Discord.
+    </p>
+    <p>
+      Good luck on the racetrack!
+    </p>
+  </section>
+
+  <script src="script.js"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+</body>
+</html>

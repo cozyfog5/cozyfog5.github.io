@@ -235,6 +235,6 @@ function getMmrChangeSummaryText(playersInfo) {
         " ".repeat(4 - mmrChangeText.length) + mmrChangeText + ")";
   }
 
-  mmrAdjustmentText += "```\n-# Made at https://cozyfog5.github.io. No warranty implied. May contain errors.";
+  mmrAdjustmentText += "```\n-# Generated using https://cozyfog5.github.io. No warranty implied. May contain errors.";
   return mmrAdjustmentText;
 }

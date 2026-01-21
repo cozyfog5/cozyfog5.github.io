@@ -21,6 +21,9 @@ function setStatus(target, message, isPositive) {
   }
 }
 
+mogiHeaderInput.addEventListener('input', () => {setStatus(mogiHeaderStatusBar, "", true);});
+scoreboardInput.addEventListener('input', () => {setStatus(scoreboardStatusBar, "", true);});
+
 // Generate output
 calculateButton.addEventListener('click', () => {
   setStatus(mogiHeaderStatusBar, "", true);

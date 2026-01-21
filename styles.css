@@ -39,6 +39,7 @@ textarea {
   width: 100%;
   min-height: 300px;
   resize: vertical;
+  margin-bottom: 0.5rem;
   padding: 0.5rem;
   padding-right: 2rem; /* space for × button */
   border: 1px solid #ccc;
@@ -108,11 +109,36 @@ button:hover {
 }
 
 .notes {
-  margin-top: 2rem;
-  padding-top: 1rem;
+  margin-top: 1rem;
+  padding-top: 0rem;
   border-top: 1px solid #ccc;
   font-size: 0.9rem;
   color: #374151;
+}
+
+.notes a:link, .notes a:visited, .notes a:active {
+  color: #374151;
+}
+
+.notes a:hover {
+  color: #667074;
+}
+
+.mmrCalcFormulaTable {
+  margin: auto;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.mmrCalcFormulaTable tr.header {
+  text-align: center;
+  font-weight: bold;
+}
+
+.mmrCalcFormulaTable td {
+  border-style: solid;
+  border-width: 1px;
+  padding: 0.5rem;
 }
 
 @media (max-width: 900px) {

@@ -7,7 +7,8 @@ const mogiHeaderStatusBar = document.getElementById('mogiHeaderStatusBar');
 const scoreboardStatusBar = document.getElementById('scoreboardStatusBar');
 const mmrTableStatusBar = document.getElementById('mmrTableStatusBar');
 const kErrorWrongMmrMapSize = "wrong_mmr_map_size";
-const kErrorWrongScoreboardMapSize = "wrong_scoreboard_map_size"
+const kErrorWrongScoreboardMapSize = "wrong_scoreboard_map_size";
+const kErrorMismatchedNames = "mismatched_names";
 
 let mmrTableStatusBarTimeout = null;
 
@@ -31,11 +32,27 @@ calculateButton.addEventListener('click', () => {
   let processTextResult = processText(mogiHeaderInput.value, scoreboardInput.value);
   if (!processTextResult.ok) {
     if (processTextResult.reason === kErrorWrongMmrMapSize) {
-      setStatus(mogiHeaderStatusBar, "Detected " + processTextResult.num_detected + " unique entr" + (processTextResult.num_detected === 1 ? "y" : "ies") + " instead of the expected " + processTextResult.num_expected + ". This tool currently supports only 24-player FFA mogis. If you are using this format, please confirm that the entire message was copied and that there are no formatting issues or duplicate names.", false);
+      setStatus(mogiHeaderStatusBar, "Detected " + processTextResult.num_detected + " valid " + (processTextResult.num_detected === 1 ? "entry" : "entries") + " instead of the expected " + processTextResult.num_expected + ". This tool currently supports only 24-player FFA mogis. If you are using this format, please confirm that the entire mogi header was copied and that there are no formatting issues or duplicate names.", false);
       return;
     }
     if (processTextResult.reason === kErrorWrongScoreboardMapSize) {
-      setStatus(scoreboardStatusBar, "Detected " + processTextResult.num_detected + " unique scoreboard entr" + (processTextResult.num_detected === 1 ? "y" : "ies") + " instead of the expected " + processTextResult.num_expected + ". Please confirm that the entire message was copied and that there are no formatting issues or duplicate names.", false);
+      setStatus(scoreboardStatusBar, "Detected " + processTextResult.num_detected + " valid scoreboard " + (processTextResult.num_detected === 1 ? "entry" : "entries") + " instead of the expected " + processTextResult.num_expected + ". Please confirm that the entire scoreboard message was copied and that there are no formatting issues or duplicate names.", false);
+      return;
+    }
+    if (processTextResult.reason === kErrorMismatchedNames) {
+      const names = processTextResult.mismatchedNames;  // Alias for brevity
+      let message = (names.length === 1 ? "Player " : "Players ");
+      for (let i = 0; i < names.length; ++i) {
+        if (names.length >= 3 && i >= 1) {
+          message += ", ";
+        }
+        if (names.length >= 2 && i == names.length - 1) {
+          message += " and ";
+        }
+        message += names[i];
+      }
+      message += (names.length === 1 ? " appears" : " appear") + " in the scoreboard but not this mogi header. If " + (names.length === 1 ? " this player is a substitute" : " these players are substitutes") + ", please replace the original " + (names.length === 1 ? "player" : "players") + " here as if their " + (names.length === 1 ? "substitute" : "substitutes") + " had participated from the start.";
+      setStatus(mogiHeaderStatusBar, message, false);
       return;
     }
   }
@@ -134,8 +151,9 @@ function processText(a, b) {
   let nameMmrMap = parseHeaderInput(a);
   let nameScoreMap = parseScoreboardInput(b);
   let playersInfo = new Array();
+  let mismatchedNames = new Array();
 
-  // Validate maps: Make sure each has 24 entries and identical keys.
+  // Make sure each table has exactly 24 entries.
   if (nameMmrMap.size != 24) {
     return {ok: false, reason: kErrorWrongMmrMapSize, num_detected: nameMmrMap.size, num_expected: 24};
   }
@@ -143,7 +161,16 @@ function processText(a, b) {
     return {ok: false, reason: kErrorWrongScoreboardMapSize, num_detected: nameScoreMap.size, num_expected: 24};
   }
 
-  // TODO: Add validation to ensure names are 1:1 between maps.
+  // Make sure both tables have identical keys.
+  for (const [name, score] of nameScoreMap) {
+    if (!nameMmrMap.get(name)) {
+      // Name is not present in mogi header.
+      mismatchedNames.push(name);
+    }
+  }
+  if (mismatchedNames.length > 0) {
+    return {ok: false, reason: kErrorMismatchedNames, mismatchedNames: mismatchedNames};
+  }
 
   for (const [name1, mmr1] of nameMmrMap) {
     let player = {name: name1, mmrBefore: mmr1, mmrChange: 0, mmrAfter: 0, score: 0, place: 0};

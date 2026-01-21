@@ -51,7 +51,7 @@ calculateButton.addEventListener('click', () => {
         }
         message += names[i];
       }
-      message += (names.length === 1 ? " appears" : " appear") + " in the scoreboard but not this mogi header. If " + (names.length === 1 ? " this player is a substitute" : " these players are substitutes") + ", please replace the original " + (names.length === 1 ? "player" : "players") + " here as if their " + (names.length === 1 ? "substitute" : "substitutes") + " had participated from the start.";
+      message += (names.length === 1 ? " appears" : " appear") + " in the scoreboard but not this mogi header. If " + (names.length === 1 ? " this player is a substitute" : " these players are substitutes") + ", please replace the original " + (names.length === 1 ? "player" : "players") + " here as if the " + (names.length === 1 ? "substitute" : "substitutes") + " had participated from the start.";
       setStatus(mogiHeaderStatusBar, message, false);
       return;
     }

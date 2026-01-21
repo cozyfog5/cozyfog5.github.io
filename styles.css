@@ -96,8 +96,15 @@ button:hover {
   min-height: 1.5rem;
   text-align: center;
   font-size: 0.9rem;
-  color: #065f46;
   margin-bottom: 1rem;
+}
+
+.statusBar.success {
+  color: #065f46;
+}
+
+.statusBar.error {
+  color: #7f1606;
 }
 
 .notes {

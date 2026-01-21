@@ -13,14 +13,13 @@ let mmrTableStatusBarTimeout = null;
 
 function setStatus(target, message, isPositive) {
   target.textContent = message;
-  // if (mmrTableStatusBarTimeout) {
-  //   clearTimeout(mmrTableStatusBarTimeout);
-  // }
-  // if (message) {
-  //   mmrTableStatusBarTimeout = setTimeout(() => {
-  //     mmrTableStatusBar.textContent = '';
-  //   }, 3000);
-  // }
+  if (isPositive) {
+    target.classList.remove("error");
+    target.classList.add("success");
+  } else {
+    target.classList.add("error");
+    target.classList.remove("success");
+  }
 }
 
 // Generate output

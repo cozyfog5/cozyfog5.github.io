@@ -40,7 +40,7 @@ calculateButton.addEventListener('click', () => {
     }
   }
   mmrTableOutput.value = getMmrChangeSummaryText(processTextResult.playersInfo);
-  setStatus(mmrTableStatusBar, "Output generated.", true);
+  setStatus(mmrTableStatusBar, "Output generated!", true);
 });
 
 // Copy output

@@ -114,18 +114,31 @@ function supplySampleText() {
 
 // Decision: if 1, Player A wins; if -1, player B wins; if 0, Players A and B tie
 function calculateMmrAdjustment(mmrA, mmrB, decision, numTeams) {
-  const cap = 30;
+  const formatConstantTable = new Map ([
+    [2, {cap: 300, scaling: 4650, baseline: 100}],
+    [3, {cap: 240, scaling: 4800, baseline: 80}],
+    [4, {cap: 180, scaling: 5100, baseline: 60}],
+    [6, {cap: 120, scaling: 5500, baseline: 40}],
+    [8, {cap: 90, scaling: -1, baseline: 30}],
+    [12, {cap: 60, scaling: 9500, baseline: 20}],
+    [24, {cap: 30, scaling: 9500, baseline: 10}],
+  ]);
+
+  const formatConstants = formatConstantTable.get(numTeams);
+  if (!formatConstants) {
+    // TODO: Log an error of some kind?
+    return 0;
+  }
+
   const logisticBase = 11;
-  const mmrDeltaDenom = 9500;
-  const baseline = 10;
-  const offset = Math.log(cap / baseline - 1) / Math.log(logisticBase);
+  const offset = Math.log(formatConstants.cap / formatConstants.baseline - 1) / Math.log(logisticBase);
 
   if (decision === 0) {
     // Tie
-    return Math.sign(mmrB - mmrA) * (cap / (1 + Math.pow(logisticBase, -(Math.abs(mmrB - mmrA) / mmrDeltaDenom - offset))) - cap / 3);
+    return Math.sign(mmrB - mmrA) * (formatConstants.cap / (1 + Math.pow(logisticBase, -(Math.abs(mmrB - mmrA) / formatConstants.scaling - offset))) - formatConstants.cap / 3);
   } else {
     // Decision
-    return Math.sign(decision) * cap / (1 + Math.pow(logisticBase, -(Math.sign(decision) * (mmrB - mmrA) / mmrDeltaDenom - offset)));
+    return Math.sign(decision) * formatConstants.cap / (1 + Math.pow(logisticBase, -(Math.sign(decision) * (mmrB - mmrA) / formatConstants.scaling - offset)));
   }
 }
 

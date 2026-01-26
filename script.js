@@ -33,7 +33,7 @@ calculateButton.addEventListener('click', () => {
   let processTextResult = processText(mogiHeaderInput.value, scoreboardInput.value);
   if (!processTextResult.ok) {
     if (processTextResult.reason === kErrorWrongMmrMapSize) {
-      setStatus(mogiHeaderStatusBar, "Detected " + processTextResult.num_detected + " valid " + (processTextResult.num_detected === 1 ? "entry" : "entries") + " instead of the expected " + processTextResult.num_expected + ". This tool currently supports only 24-player FFA mogis. If you are using this format, please confirm that the entire mogi header was copied and that there are no formatting issues or duplicate names.", false);
+      setStatus(mogiHeaderStatusBar, "Detected " + processTextResult.num_detected + " unique " + (processTextResult.num_detected === 1 ? "team" : "teams") + ". For FFAs, there should be 24 players. For squad contests, there should be either 2, 3, 4, 6, 8, or 12 teams. Please confirm that the entire mogi header was copied and that there are no formatting issues or duplicate names.", false);
       return;
     }
     if (processTextResult.reason === kErrorWrongScoreboardMapSize) {
@@ -169,7 +169,7 @@ function processText(a, b) {
 
   // Make sure each table has exactly 24 entries.
   if (nameMmrMap.size != 24) {
-    return {ok: false, reason: kErrorWrongMmrMapSize, num_detected: nameMmrMap.size, num_expected: 24};
+    return {ok: false, reason: kErrorWrongMmrMapSize, num_detected: nameMmrMap.size};
   }
   if (nameScoreMap.size != 24) {
     return {ok: false, reason: kErrorWrongScoreboardMapSize, num_detected: nameScoreMap.size, num_expected: 24};

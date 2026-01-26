@@ -32,30 +32,34 @@ calculateButton.addEventListener('click', () => {
   mmrTableOutput.value = "";
   let processTextResult = processText(mogiHeaderInput.value, scoreboardInput.value);
   if (!processTextResult.ok) {
-    if (processTextResult.reason === kErrorWrongMmrMapSize) {
-      setStatus(mogiHeaderStatusBar, "Detected " + processTextResult.num_detected + " unique " + (processTextResult.num_detected === 1 ? "team" : "teams") + ". For FFAs, there should be 24 players. For squad contests, there should be either 2, 3, 4, 6, 8, or 12 teams. Please confirm that the entire mogi header was copied and that there are no formatting issues or duplicate names.", false);
-      return;
-    }
-    if (processTextResult.reason === kErrorWrongScoreboardMapSize) {
-      setStatus(scoreboardStatusBar, "Detected " + processTextResult.num_detected + " valid scoreboard " + (processTextResult.num_detected === 1 ? "entry" : "entries") + " instead of the expected " + processTextResult.num_expected + ". Please confirm that the entire scoreboard message was copied and that there are no formatting issues or duplicate names.", false);
-      return;
-    }
-    if (processTextResult.reason === kErrorMismatchedNames) {
-      const names = processTextResult.mismatchedNames;  // Alias for brevity
-      let message = (names.length === 1 ? "Player " : "Players ");
-      for (let i = 0; i < names.length; ++i) {
-        if (names.length >= 3 && i >= 1) {
-          message += ", ";
+    switch (processTextResult.reason) {
+      case kErrorWrongMmrMapSize:
+        setStatus(mogiHeaderStatusBar, "Detected " + processTextResult.num_detected + " unique " + (processTextResult.num_detected === 1 ? "team" : "teams") + ". For FFAs, there should be 24 players. For squad contests, there should be either 2, 3, 4, 6, 8, or 12 teams. Please confirm that the entire mogi header was copied and that there are no formatting issues or duplicate names.", false);
+        break;
+      case kErrorWrongScoreboardMapSize:
+        setStatus(scoreboardStatusBar, "Detected " + processTextResult.num_detected + " valid scoreboard " + (processTextResult.num_detected === 1 ? "entry" : "entries") + " instead of the expected " + processTextResult.num_expected + ". Please confirm that the entire scoreboard message was copied and that there are no formatting issues or duplicate names.", false);
+        break;
+      case kErrorMismatchedNames: {
+        const names = processTextResult.mismatchedNames;  // Alias for brevity
+        let message = (names.length === 1 ? "Player " : "Players ");
+        for (let i = 0; i < names.length; ++i) {
+          if (names.length >= 3 && i >= 1) {
+            message += ", ";
+          }
+          if (names.length >= 2 && i == names.length - 1) {
+            message += " and ";
+          }
+          message += names[i];
         }
-        if (names.length >= 2 && i == names.length - 1) {
-          message += " and ";
-        }
-        message += names[i];
+        message += (names.length === 1 ? " appears" : " appear") + " in the scoreboard but not this mogi header. If " + (names.length === 1 ? " this player is a substitute" : " these players are substitutes") + ", please replace the original " + (names.length === 1 ? "player" : "players") + " here as if the " + (names.length === 1 ? "substitute" : "substitutes") + " had participated from the start.";
+        setStatus(mogiHeaderStatusBar, message, false);
+        break;
       }
-      message += (names.length === 1 ? " appears" : " appear") + " in the scoreboard but not this mogi header. If " + (names.length === 1 ? " this player is a substitute" : " these players are substitutes") + ", please replace the original " + (names.length === 1 ? "player" : "players") + " here as if the " + (names.length === 1 ? "substitute" : "substitutes") + " had participated from the start.";
-      setStatus(mogiHeaderStatusBar, message, false);
-      return;
+      default:
+        setStatus(mmrTableStatusBar, "Some miscellaneous error occurred. If cozyfog5 were a better coder, he would have handled this specific case and given you a precise error message instead of this generic text.", false);
+        break;
     }
+    return;
   }
   mmrTableOutput.value = getMmrChangeSummaryText(processTextResult.playersInfo);
   setStatus(mmrTableStatusBar, "Output generated!", true);

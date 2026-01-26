@@ -34,10 +34,10 @@ calculateButton.addEventListener('click', () => {
   if (!processTextResult.ok) {
     switch (processTextResult.reason) {
       case kErrorWrongMmrMapSize:
-        setStatus(mogiHeaderStatusBar, "Detected " + processTextResult.num_detected + " unique " + (processTextResult.num_detected === 1 ? "team" : "teams") + ". For FFAs, there should be 24 players. For squad contests, there should be either 2, 3, 4, 6, 8, or 12 teams. Please confirm that the entire mogi header was copied and that there are no formatting issues or duplicate names.", false);
+        setStatus(mogiHeaderStatusBar, "Detected " + processTextResult.numDetected + " unique " + (processTextResult.numDetected === 1 ? "team" : "teams") + ". For FFAs, there should be 24 players. For squad contests, there should be either 2, 3, 4, 6, 8, or 12 teams. Please confirm that the entire mogi header was copied and that there are no formatting issues or duplicate names.", false);
         break;
       case kErrorWrongScoreboardMapSize:
-        setStatus(scoreboardStatusBar, "Detected " + processTextResult.num_detected + " valid scoreboard " + (processTextResult.num_detected === 1 ? "entry" : "entries") + " instead of the expected " + processTextResult.num_expected + ". Please confirm that the entire scoreboard message was copied and that there are no formatting issues or duplicate names.", false);
+        setStatus(scoreboardStatusBar, "Detected " + processTextResult.numDetected + " valid scoreboard " + (processTextResult.numDetected === 1 ? "entry" : "entries") + " instead of the expected " + processTextResult.numExpected + ". Please confirm that the entire scoreboard message was copied and that there are no formatting issues or duplicate names.", false);
         break;
       case kErrorMismatchedNames: {
         const names = processTextResult.mismatchedNames;  // Alias for brevity
@@ -113,19 +113,19 @@ function supplySampleText() {
 }
 
 // Decision: if 1, Player A wins; if -1, player B wins; if 0, Players A and B tie
-function calculateMmrAdjustment(mmrA, mmrB, decision, num_teams) {
+function calculateMmrAdjustment(mmrA, mmrB, decision, numTeams) {
   const cap = 30;
-  const logistic_base = 11;
-  const mmr_delta_denom = 9500;
+  const logisticBase = 11;
+  const mmrDeltaDenom = 9500;
   const baseline = 10;
-  const offset = Math.log(cap / baseline - 1) / Math.log(logistic_base);
+  const offset = Math.log(cap / baseline - 1) / Math.log(logisticBase);
 
   if (decision === 0) {
     // Tie
-    return Math.sign(mmrB - mmrA) * (cap / (1 + Math.pow(logistic_base, -(Math.abs(mmrB - mmrA) / mmr_delta_denom - offset))) - cap / 3);
+    return Math.sign(mmrB - mmrA) * (cap / (1 + Math.pow(logisticBase, -(Math.abs(mmrB - mmrA) / mmrDeltaDenom - offset))) - cap / 3);
   } else {
     // Decision
-    return Math.sign(decision) * cap / (1 + Math.pow(logistic_base, -(Math.sign(decision) * (mmrB - mmrA) / mmr_delta_denom - offset)));
+    return Math.sign(decision) * cap / (1 + Math.pow(logisticBase, -(Math.sign(decision) * (mmrB - mmrA) / mmrDeltaDenom - offset)));
   }
 }
 
@@ -173,10 +173,10 @@ function processText(a, b) {
 
   // Make sure each table has exactly 24 entries.
   if (nameMmrMap.size != 24) {
-    return {ok: false, reason: kErrorWrongMmrMapSize, num_detected: nameMmrMap.size};
+    return {ok: false, reason: kErrorWrongMmrMapSize, numDetected: nameMmrMap.size};
   }
   if (nameScoreMap.size != 24) {
-    return {ok: false, reason: kErrorWrongScoreboardMapSize, num_detected: nameScoreMap.size, num_expected: 24};
+    return {ok: false, reason: kErrorWrongScoreboardMapSize, numDetected: nameScoreMap.size, numExpected: 24};
   }
 
   // Make sure both tables have identical keys.

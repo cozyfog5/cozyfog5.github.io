@@ -113,7 +113,7 @@ function supplySampleText() {
 }
 
 // Decision: if 1, Player A wins; if -1, player B wins; if 0, Players A and B tie
-function calculateMmrAdjustment(mmrA, mmrB, decision) {
+function calculateMmrAdjustment(mmrA, mmrB, decision, num_teams) {
   const cap = 30;
   const logistic_base = 11;
   const mmr_delta_denom = 9500;
@@ -196,7 +196,7 @@ function processText(a, b) {
     for (const [name2, mmr2] of nameMmrMap) {
       const decision = Math.sign(player.score - nameScoreMap.get(name2));
       player.place += (decision === -1 ? 1 : 0);
-      player.mmrChange += calculateMmrAdjustment(player.mmrBefore, mmr2, decision);
+      player.mmrChange += calculateMmrAdjustment(player.mmrBefore, mmr2, decision, 24);
     }
     player.mmrChange = Math.round(player.mmrChange);
     player.mmrAfter = Math.ceil(player.mmrBefore + player.mmrChange, 0);  // Need to ensure that MMR doesn't drop below 0 under any circumstances.

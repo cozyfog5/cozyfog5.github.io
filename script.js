@@ -1,3 +1,4 @@
+// Controls
 const mogiHeaderInput = document.getElementById('mogiHeaderInput');
 const scoreboardInput = document.getElementById('scoreboardInput');
 const mmrTableOutput = document.getElementById('mmrTableOutput');
@@ -6,9 +7,19 @@ const copyButton = document.getElementById('copyButton');
 const mogiHeaderStatusBar = document.getElementById('mogiHeaderStatusBar');
 const scoreboardStatusBar = document.getElementById('scoreboardStatusBar');
 const mmrTableStatusBar = document.getElementById('mmrTableStatusBar');
-const kErrorWrongMmrMapSize = "wrong_mmr_map_size";
-const kErrorWrongScoreboardMapSize = "wrong_scoreboard_map_size";
+
+// Errors
 const kErrorMismatchedNames = "mismatched_names";
+const kErrorNotAssignedToTeam = "player_not_assigned_to_team";
+const kErrorInvalidNumberOfTeams = "invalid_number_of_teams";
+const kErrorInvalidNumberOfPlayersInHeader = "invalid_number_of_players_in_header";
+const kErrorInvalidNumberOfPlayersOnScoreboard = "invalid_number_of_players_on_scoreboard";
+const kErrorPlayerQuantityMismatch = "player_quantity_mismatch";
+const kErrorMiscellaneous = "miscellaneous";
+
+function debugStatus(message) {
+  setStatus(mmrTableStatusBar, message, true);
+}
 
 function setStatus(target, message, isPositive) {
   target.textContent = message;
@@ -30,14 +41,14 @@ calculateButton.addEventListener('click', () => {
   setStatus(scoreboardStatusBar, "", true);
   setStatus(mmrTableStatusBar, "", true);
   mmrTableOutput.value = "";
-  let processTextResult = processText(mogiHeaderInput.value, scoreboardInput.value);
+  let processTextResult = tryProcessText(mogiHeaderInput.value, scoreboardInput.value);
   if (!processTextResult.ok) {
     switch (processTextResult.reason) {
       case kErrorWrongMmrMapSize:
-        setStatus(mogiHeaderStatusBar, "Detected " + processTextResult.numDetected + " unique " + (processTextResult.numDetected === 1 ? "team" : "teams") + ". For FFAs, there should be 24 players. For squad contests, there should be either 2, 3, 4, 6, 8, or 12 teams. Please confirm that the entire mogi header was copied and that there are no formatting issues or duplicate names.", false);
+        setStatus(mogiHeaderStatusBar, "Detected " + processTextResult.numDetected + " unique " + (processTextResult.numDetected === 1 ? "team" : "teams") + ". For FFAs, there should be 12 or 24 players. For squad contests, there should be either 2, 3, 4, 6, 8, or 12 teams. Please confirm that the entire mogi header was copied and that there are no formatting issues or duplicate names.", false);
         break;
       case kErrorWrongScoreboardMapSize:
-        setStatus(scoreboardStatusBar, "Detected " + processTextResult.numDetected + " valid scoreboard " + (processTextResult.numDetected === 1 ? "entry" : "entries") + " instead of the expected " + processTextResult.numExpected + ". Please confirm that the entire scoreboard message was copied and that there are no formatting issues or duplicate names.", false);
+        setStatus(scoreboardStatusBar, "Detected " + processTextResult.numDetected + " valid scoreboard " + (processTextResult.numDetected === 1 ? "entry" : "entries") + " instead of the expected 12 or 24. Please confirm that the entire scoreboard message was copied and that there are no formatting issues or duplicate names.", false);
         break;
       case kErrorMismatchedNames: {
         const names = processTextResult.mismatchedNames;  // Alias for brevity
@@ -56,6 +67,7 @@ calculateButton.addEventListener('click', () => {
         break;
       }
       default:
+      case kErrorMiscellaneous:
         setStatus(mmrTableStatusBar, "Some miscellaneous error occurred. If cozyfog5 were a better coder, he would have handled this specific case and given you a precise error message instead of this generic text.", false);
         break;
     }
@@ -145,17 +157,36 @@ function calculateMmrAdjustment(mmrA, mmrB, decision, numTeams) {
 // Interprets text as the mogi "header," which I define to be the first message posted in the room,
 // and returns a mapping from name to starting MMR if possible.
 function parseHeaderInput(input) {
-  let nameMmrMap = new Map();
+  let teamMmrMemberMap = new Map();
+  let playerTeamMap = new Map();
   let linesArr = input.split(/\r?\n/);
+  let teamId = 1;
   for (const line of linesArr) {
-    let nameTest = line.match(/^\s*`?\d+\.`?\s*(.+?)\s*\((\d+) MMR\)\s*$/);
-    if (nameTest) {
-      // Replace is needed for backslashes that get added before punctuation marks otherwise used
-      // for Discord formatting (including _underscores_, which appear frequently).
-      nameMmrMap.set(nameTest[1].replace(/\\/g, ""), Number(nameTest[2]));
+    let teamTest = line.match(/^\s*`?\d+\.`?\s*(.+?)\s*\((\d+) MMR\)\s*$/);
+    if (teamTest) {
+      // Line understood to represent a team (where a player in FFA formats is a one-person team).
+
+      // Assign each player to their team ID.
+      let teamMembers = teamTest[1].split(/,\s*/);
+      for (let i = 0; i < teamMembers.length; ++i) {
+        // Replace is needed for backslashes that get added before punctuation marks otherwise used
+        // for Discord formatting (including _underscores_, which appear frequently).
+        teamMembers[i] = teamMembers[i].replace(/\\/g, "");
+      }
+
+      // Assign a team's members. (Yes, this is a parallel data structure, but it will aid lookups
+      // since we will need lookups from player to team and team to players.
+      for (const player of teamMembers) {
+        playerTeamMap.set(player.replace(/\\/g, ""), teamId);
+      }
+
+      // Assign players and starting MMR to the team.
+      teamMmrMemberMap.set(teamId, {members: teamMembers, startingMmr: Number(teamTest[2])});
+
+      ++teamId;
     }
   }
-  return nameMmrMap;
+  return {playerTeamMap: playerTeamMap, teamMmrMemberMap: teamMmrMemberMap};
 }
 
 // Interprets the scoreboard and returns a mapping from name to finishing score.
@@ -178,51 +209,126 @@ function parseScoreboardInput(input) {
   return nameScoreMap;
 }
 
-function processText(a, b) {
-  let nameMmrMap = parseHeaderInput(a);
-  let nameScoreMap = parseScoreboardInput(b);
+function tryCalculateTeamScores(playerTeamMap, nameScoreMap) {
+  let teamScoreMap = new Map();
+  let unassignedPlayers = new Array();
+
+
+
+  for (const [playerName, playerScore] of nameScoreMap) {
+    const teamId = playerTeamMap.get(playerName);
+    if (!teamId) {
+      unassignedPlayers.push(playerName);
+      continue;
+    }
+    if (teamScoreMap.has(teamId)) {
+      teamScoreMap.set(teamScoreMap.get(teamId) + playerScore);
+    } else {
+      teamScoreMap.set(teamId, playerScore);
+    }
+  }
+
+  if (unassignedPlayers.length > 0) {
+    return {ok: false, reason: kErrorNotAssignedToTeam, unassignedPlayers: unassignedPlayers};
+  }
+
+  return {ok: true, teamScoreMap: teamScoreMap};
+}
+
+function tryProcessText(a, b) {
+  const headerResult = parseHeaderInput(a);
+  const nameScoreMap = parseScoreboardInput(b);
+
+  // Validate that the number of teams is something we can handle.
+  const validNumTeams = [24, 12, 8, 6, 4, 2, 1];
+  let hasValidNumTeams = false;
+  for (const numTeams of validNumTeams) {
+    if (headerResult.teamMmrMemberMap.size == numTeams) {
+      hasValidNumTeams = true;
+      break;
+    }
+  }
+
+  if (!hasValidNumTeams) {
+    return {ok: false, reason: kErrorInvalidNumberOfTeams, numTeams: headerResult.teamMmrMemberMap.size};
+  }
+
+  // Validate that the number of players in the header matches expectations.
+  if (headerResult.playerTeamMap.size != 12 && headerResult.playerTeamMap.size != 24) {
+    return {ok: false, reason: kErrorInvalidNumberOfPlayersInHeader, numDetected: nameScoreMap.size};
+  }
+
+  // Validate that the number of players on the scoreboard matches expectation.
+  if (nameScoreMap.size != 12 && nameScoreMap.size != 24) {
+    return {ok: false, reason: kErrorInvalidNumberOfPlayersOnScoreboard, numDetected: nameScoreMap.size};
+  }
+
+  // Validate that the number of players in the header matches the number of players on the scoreboard.
+  if (nameScoreMap.size != headerResult.playerTeamMap.size) {
+    return {ok: false, reason: kErrorPlayerQuantityMismatch, numPlayersInHeader: headerResult.playerTeamMap.size, numPlayersOnScoreboard: nameScoreMap.size};
+  }
+
+  const calculateTeamScoresResult = tryCalculateTeamScores(headerResult.playerTeamMap, nameScoreMap);
+
+  // Report any reconciliation errors between header and scoreboard (typically mismatched names).
+  if (!calculateTeamScoresResult.ok) {
+    return calculateTeamScoresResult;
+  }
+
+  let teamResults = new Map();
+  for (const [teamId, teamInfo] of headerResult.teamMmrMemberMap) {
+    let teamResult = {startingMmr: teamInfo.startingMmr, mmrChange: 0, score: 0, place: 0};
+    
+    // Calculate the team's cumulative score.
+    for (const member of teamInfo.members) {
+      let playerScore = nameScoreMap.get(member);
+      if (!playerScore) {
+        // TODO: Throw precise error.
+        return {ok: false, reason: kErrorMiscellaneous};
+      }
+      teamResult.score += nameScoreMap.get(member);
+    }
+
+    teamResults.set(teamId, teamResult);
+  }
+
+  // Calculate team placements and MMR changes.
+  for (let [teamId1, teamResult1] of teamResults) {
+    for (const [teamId2, teamResult2] of teamResults) {
+      const decision = Math.sign(teamResult1.score - teamResult2.score);
+      teamResult1.place += (decision === -1 ? 1 : 0);
+      teamResult1.mmrChange += calculateMmrAdjustment(teamResult1.startingMmr, teamResult2.startingMmr, decision, headerResult.teamMmrMemberMap.size);
+    }
+    teamResult1.mmrChange = Math.round(teamResult1.mmrChange);
+  }
+
   let playersInfo = new Array();
-  let mismatchedNames = new Array();
-
-  // Make sure each table has exactly 24 entries.
-  if (nameMmrMap.size != 24) {
-    return {ok: false, reason: kErrorWrongMmrMapSize, numDetected: nameMmrMap.size};
-  }
-  if (nameScoreMap.size != 24) {
-    return {ok: false, reason: kErrorWrongScoreboardMapSize, numDetected: nameScoreMap.size, numExpected: 24};
-  }
-
-  // Make sure both tables have identical keys.
   for (const [name, score] of nameScoreMap) {
-    if (!nameMmrMap.get(name)) {
-      // Name is not present in mogi header.
-      mismatchedNames.push(name);
-    }
-  }
-  if (mismatchedNames.length > 0) {
-    return {ok: false, reason: kErrorMismatchedNames, mismatchedNames: mismatchedNames};
+    let player = {name: name, mmrBefore: }
   }
 
-  for (const [name1, mmr1] of nameMmrMap) {
-    let player = {name: name1, mmrBefore: mmr1, mmrChange: 0, mmrAfter: 0, score: 0, place: 0};
-    player.score = nameScoreMap.get(player.name);  // TODO: Error handling...
-    for (const [name2, mmr2] of nameMmrMap) {
-      const decision = Math.sign(player.score - nameScoreMap.get(name2));
-      player.place += (decision === -1 ? 1 : 0);
-      player.mmrChange += calculateMmrAdjustment(player.mmrBefore, mmr2, decision, 24);
-    }
-    player.mmrChange = Math.round(player.mmrChange);
-    player.mmrAfter = Math.ceil(player.mmrBefore + player.mmrChange, 0);  // Need to ensure that MMR doesn't drop below 0 under any circumstances.
-    player.mmrChange = player.mmrAfter - player.mmrBefore;  // Update MMR adjustment to reflect possible bounding by 0.
-    playersInfo.push(player);
-  }
+debugStatus("HERE");
 
-  // Sort playersInfo best placement to worst placement, then by ascending MMR (so that better adjustments tend to be upward on the table).
-  playersInfo.sort((a, b) => {
-    return a.place !== b.place ? a.place - b.place : a.mmrBefore - b.mmrBefore;
-  });
+  // for (const [name1, mmr1] of nameMmrMap) {
+  //   let player = {name: name1, mmrBefore: mmr1, mmrChange: 0, mmrAfter: 0, score: 0, place: 0};
+  //   player.score = nameScoreMap.get(player.name);  // TODO: Error handling...
+  //   for (const [name2, mmr2] of nameMmrMap) {
+  //     const decision = Math.sign(player.score - nameScoreMap.get(name2));
+  //     player.place += (decision === -1 ? 1 : 0);
+  //     player.mmrChange += calculateMmrAdjustment(player.mmrBefore, mmr2, decision, 24);
+  //   }
+  //   player.mmrChange = Math.round(player.mmrChange);
+  //   player.mmrAfter = Math.ceil(player.mmrBefore + player.mmrChange, 0);  // Need to ensure that MMR doesn't drop below 0 under any circumstances.
+  //   player.mmrChange = player.mmrAfter - player.mmrBefore;  // Update MMR adjustment to reflect possible bounding by 0.
+  //   playersInfo.push(player);
+  // }
 
-  return {ok: true, playersInfo: playersInfo};
+  // // Sort playersInfo best placement to worst placement, then by ascending MMR (so that better adjustments tend to be upward on the table).
+  // playersInfo.sort((a, b) => {
+  //   return a.place !== b.place ? a.place - b.place : a.mmrBefore - b.mmrBefore;
+  // });
+
+  // return {ok: true, playersInfo: playersInfo};
 }
 
 function getMmrChangeSummaryText(playersInfo) {

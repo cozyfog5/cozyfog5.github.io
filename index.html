@@ -170,7 +170,7 @@ Player X 62"
       <tr>
         <td>Player A beats Player B</td>
         <td>
-          $$\Delta\mathit{MMR} = {30 \over 1 + 11^{-\left({{\mathit{MMR}_B - \mathit{MMR}_A \over 9500} - 0.2891}\right)}}$$
+          $$\Delta\mathit{MMR} = {C \over 1 + (C - D)11^{(\mathit{MMR}_A - \mathit{MMR}_B)/9500}}$$
         </td>
         <td>
           Player A gains \(\Delta\mathit{MMR}\).<br/>Player B loses \(\Delta\mathit{MMR}\).
@@ -179,7 +179,7 @@ Player X 62"
       <tr>
         <td>Player A ties Player B</td>
         <td>
-          $$\Delta\mathit{MMR} = {30 \over 1 + 11^{-\left({{|\mathit{MMR}_B - \mathit{MMR}_A| \over 9500} - 0.2891}\right)}}-10$$
+          $$\Delta\mathit{MMR} = {C \over 1 + (C - D)11^{|\mathit{MMR}_A - \mathit{MMR}_B|/9500}}-{C \over 3}$$
         </td>
         <td>
           Player with lower MMR gains \(\Delta\mathit{MMR}\).<br/>Player with higher MMR loses \(\Delta\mathit{MMR}\).<br/>No change if players have equal MMR.

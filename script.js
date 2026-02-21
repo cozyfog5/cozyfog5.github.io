@@ -176,7 +176,7 @@ function processText(a, b) {
 
   // Make sure both tables have identical keys.
   for (const [name, score] of nameScoreMap) {
-    if (!nameMmrMap.get(name)) {
+    if (!nameMmrMap.has(name)) {
       // Name is not present in mogi header.
       mismatchedNames.push(name);
     }

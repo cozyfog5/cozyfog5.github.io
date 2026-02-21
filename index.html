@@ -186,6 +186,55 @@ Player X 62"
         </td>
       </tr>
     </table>
+    <ul>
+      <li>The cap, \(C\), is the largest possible gain or less for any head-to-head contest.</li>
+      <li>The baseline, \(D\), is the adjustment for beating another player/team with the same MMR.</li>
+      <li>The scaling factor, \(P\), controls how aggressively the rating adjustment accounts for MMR differences. A smaller scaling factor means greater sensitivity.</li>
+    </ul>
+    <p>
+       The values of \(C\), \(D\), and \(P\) vary based on the format:
+    </p>
+    <table class="mmrCalcFormulaTable">
+      <tr class="header">
+        <td>Format</td><td>Number of teams</td><td>Cap, <em>C</em></td><td>Baseline, <em>D</em></td><td>Scaling, <em>P</em></td>
+      </tr>
+      <tr>
+        <td>24p FFA</td><td>24</td><td>30</td><td>10</td><td>9500</td>
+      </tr>
+      <tr>
+        <td>24p 2v2</td><td>12</td><td>60</td><td>20</td><td>5500</td>
+      </tr>
+      <tr>
+        <td>24p 3v3</td><td>8</td><td>90</td><td>30</td><td>5100</td>
+      </tr>
+      <tr>
+        <td>24p 4v4</td><td>6</td><td>120</td><td>40</td><td>4800</td>
+      </tr>
+      <tr>
+        <td>24p 6v6</td><td>4</td><td>180</td><td>60</td><td>4650</td>
+      </tr>
+      <tr>
+        <td>24p 8v8</td><td>3</td><td>240</td><td>80</td><td>4550</td>
+      </tr>
+      <tr>
+        <td>24p 12v12</td><td>2</td><td>300</td><td>100</td><td>4500</td>
+      </tr>
+      <tr>
+        <td>12p FFA</td><td>12</td><td>60</td><td>20</td><td>9500</td>
+      </tr>
+      <tr>
+        <td>12p 2v2</td><td>6</td><td>120</td><td>40</td><td>5500</td>
+      </tr>
+      <tr>
+        <td>12p 3v3</td><td>4</td><td>180</td><td>60</td><td>5100</td>
+      </tr>
+      <tr>
+        <td>12p 4v4</td><td>3</td><td>240</td><td>80</td><td>4800</td>
+      </tr>
+      <tr>
+        <td>12p 6v6</td><td>2</td><td>300</td><td>100</td><td>4650</td>
+      </tr>
+    </table>
     <h3>Notes</h3>
     <ul>
       <li>The margin of victory or defeat in each head-to-head contest is unimportant. Whether Player A beats Player B by 100 points or 1 point, by 23 places or by 1 place, it counts the same.</li>

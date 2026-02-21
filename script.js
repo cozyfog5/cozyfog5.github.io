@@ -111,17 +111,16 @@ function supplySampleText() {
 // Decision: if 1, Player A wins; if -1, player B wins; if 0, Players A and B tie
 function calculateMmrAdjustment(mmrA, mmrB, decision) {
   const cap = 30;
-  const logistic_base = 11;
-  const mmr_delta_denom = 9500;
   const baseline = 10;
-  const offset = Math.log(cap / baseline - 1) / Math.log(logistic_base);
+  const scaling_factor = 9500;
+  const logistic_base = 11;
 
   if (decision === 0) {
     // Tie
-    return Math.sign(mmrB - mmrA) * (cap / (1 + Math.pow(logistic_base, -(Math.abs(mmrB - mmrA) / mmr_delta_denom - offset))) - cap / 3);
+    return Math.sign(mmrB - mmrA) * (cap / (1 + (cap / baseline - 1) * Math.pow(logistic_base, -Math.abs(mmrB - mmrA) / scaling_factor)) - cap / 3);
   } else {
     // Decision
-    return Math.sign(decision) * cap / (1 + Math.pow(logistic_base, -(Math.sign(decision) * (mmrB - mmrA) / mmr_delta_denom - offset)));
+    return Math.sign(decision) * cap / (1 + (cap / baseline - 1) * Math.pow(logistic_base, -Math.sign(decision) * (mmrB - mmrA) / scaling_factor));
   }
 }
 
@@ -177,7 +176,7 @@ function processText(a, b) {
 
   // Make sure both tables have identical keys.
   for (const [name, score] of nameScoreMap) {
-    if (!nameMmrMap.get(name)) {
+    if (!nameMmrMap.has(name)) {
       // Name is not present in mogi header.
       mismatchedNames.push(name);
     }

@@ -158,38 +158,89 @@ Player X 62"
       Cynda describes the algorithm in <a href="https://docs.google.com/document/d/1IowqAokeJqQWhjJ__TcQn5hbDqoK5irUVmvb441-90Q">this document</a>.
     </p>
     <p>
-      Each mogi is treated as a collection of one-versus-one contests between players.
-      For each contest, a player gains MMR when they either place better than their opponent or tie their opponent when the opponent has a higher rating; otherwise, the player loses MMR and their opponent gains MMR instead.
-      The results from every head-to-head matchup are summed together and rounded to produce the player's net MMR adjustment for the mogi.
+      Each mogi is treated as a collection of head-to-head contests between teams. (In an FFA format, each player is their own team.)
+      Each team&rsquo;s rating is the average MMR of the players on the team.
+      For each contest, a team gains MMR when they either place better than their opponent or tie their opponent when the opponent has a higher rating; otherwise, the team loses MMR and their opponent gains MMR instead.
+      The results from every head-to-head matchup are summed together and rounded to produce the team&rsquo;s net MMR adjustment for the mogi.
+      The team&rsquo;s MMR adjustment is then applied to all members of the team to determine each player&rsquo;s new rating.
     </p>
 
-    <table class="mmrCalcFormulaTable">
+    <table class="detailTable">
       <tr class="header">
-        <td>Matchup result</td><td>Calculation (24p FFA)</td><td>Rating outcomes</td>
+        <td>Matchup result</td><td>Calculation</td><td>Rating outcomes</td>
       </tr>
       <tr>
-        <td>Player A beats Player B</td>
+        <td>Team A beats Team B</td>
         <td>
-          $$\Delta\mathit{MMR} = {30 \over 1 + 11^{-\left({{\mathit{MMR}_B - \mathit{MMR}_A \over 9500} - 0.2891}\right)}}$$
+          $$\Delta\mathit{MMR} = {C \over 1 + \left({C \over D} -1\right)11^{-(\mathit{MMR}_B - \mathit{MMR}_A)/P}}$$
         </td>
         <td>
-          Player A gains \(\Delta\mathit{MMR}\).<br/>Player B loses \(\Delta\mathit{MMR}\).
+          Team A gains \(\Delta\mathit{MMR}\).<br/>Team B loses \(\Delta\mathit{MMR}\).
         </td>
       </tr>
       <tr>
-        <td>Player A ties Player B</td>
+        <td>Team A ties Team B</td>
         <td>
-          $$\Delta\mathit{MMR} = {30 \over 1 + 11^{-\left({{|\mathit{MMR}_B - \mathit{MMR}_A| \over 9500} - 0.2891}\right)}}-10$$
+          $$\Delta\mathit{MMR} = {C \over 1 + \left({C \over D} -1\right)11^{-|\mathit{MMR}_B - \mathit{MMR}_A|/P}}-{C \over 3}$$
         </td>
         <td>
-          Player with lower MMR gains \(\Delta\mathit{MMR}\).<br/>Player with higher MMR loses \(\Delta\mathit{MMR}\).<br/>No change if players have equal MMR.
+          Team with lower MMR gains \(\Delta\mathit{MMR}\).<br/>Team with higher MMR loses \(\Delta\mathit{MMR}\).<br/>No change if teams have equal MMR.
         </td>
+      </tr>
+    </table>
+    <ul>
+      <li>The cap, \(C\), is the largest possible gain or loss for any head-to-head contest.</li>
+      <li>The baseline, \(D\), is the adjustment for beating another team with the same MMR.</li>
+      <li>The scaling factor, \(P\), controls how aggressively the rating adjustment accounts for MMR differences. A smaller scaling factor means greater sensitivity.</li>
+    </ul>
+    <p>
+       The values of \(C\), \(D\), and \(P\) vary based on the format:
+    </p>
+    <table class="detailTable">
+      <tr class="header">
+        <td>Format</td><td>Number of teams</td><td>Cap, <em>C</em></td><td>Baseline, <em>D</em></td><td>Scaling, <em>P</em></td>
+      </tr>
+      <tr>
+        <td>24p FFA</td><td>24</td><td>30</td><td>10</td><td>9500</td>
+      </tr>
+      <tr>
+        <td>24p 2v2</td><td>12</td><td>60</td><td>20</td><td>5500</td>
+      </tr>
+      <tr>
+        <td>24p 3v3</td><td>8</td><td>90</td><td>30</td><td>5100</td>
+      </tr>
+      <tr>
+        <td>24p 4v4</td><td>6</td><td>120</td><td>40</td><td>4800</td>
+      </tr>
+      <tr>
+        <td>24p 6v6</td><td>4</td><td>180</td><td>60</td><td>4650</td>
+      </tr>
+      <tr>
+        <td>24p 8v8</td><td>3</td><td>240</td><td>80</td><td>4550</td>
+      </tr>
+      <tr>
+        <td>24p 12v12</td><td>2</td><td>300</td><td>100</td><td>4500</td>
+      </tr>
+      <tr>
+        <td>12p FFA</td><td>12</td><td>60</td><td>20</td><td>9500</td>
+      </tr>
+      <tr>
+        <td>12p 2v2</td><td>6</td><td>120</td><td>40</td><td>5500</td>
+      </tr>
+      <tr>
+        <td>12p 3v3</td><td>4</td><td>180</td><td>60</td><td>5100</td>
+      </tr>
+      <tr>
+        <td>12p 4v4</td><td>3</td><td>240</td><td>80</td><td>4800</td>
+      </tr>
+      <tr>
+        <td>12p 6v6</td><td>2</td><td>300</td><td>100</td><td>4650</td>
       </tr>
     </table>
     <h3>Notes</h3>
     <ul>
-      <li>The margin of victory or defeat in each head-to-head contest is unimportant. Whether Player A beats Player B by 100 points or 1 point, by 23 places or by 1 place, it counts the same.</li>
-      <li>The method uses what is called a <a href="https://en.wikipedia.org/wiki/Logistic_function">logistic function</a>. The specific function used in 24-player FFA mogis is calibrated so that beating someone with the same MMR nets 10 points and no matchup can yield a gain or loss greater than 30 points regardless of the players&rsquo; MMR differential.</li>
+      <li>The margin of victory or defeat in each head-to-head contest is unimportant. Whether Team A beats Team B by 100 points or 1 point, by 23 places or by 1 place, it counts the same.</li>
+      <li>The method uses what is called a <a href="https://en.wikipedia.org/wiki/Logistic_function">logistic function</a>.
     </ul>
     <h2>About this site</h2>
     <p>

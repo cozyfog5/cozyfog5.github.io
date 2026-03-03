@@ -194,7 +194,7 @@ function processText(a, b) {
       player.mmrChange += calculateMmrAdjustment(player.mmrBefore, mmr2, decision);
     }
     player.mmrChange = Math.round(player.mmrChange);
-    player.mmrAfter = Math.ceil(player.mmrBefore + player.mmrChange, 0);  // Need to ensure that MMR doesn't drop below 0 under any circumstances.
+    player.mmrAfter = Math.max(player.mmrBefore + player.mmrChange, 0);  // Need to ensure that MMR doesn't drop below 0 under any circumstances.
     player.mmrChange = player.mmrAfter - player.mmrBefore;  // Update MMR adjustment to reflect possible bounding by 0.
     playersInfo.push(player);
   }

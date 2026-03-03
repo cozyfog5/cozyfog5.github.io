@@ -194,7 +194,7 @@ function processText(a, b) {
       player.mmrChange += calculateMmrAdjustment(player.mmrBefore, mmr2, decision);
     }
     player.mmrChange = Math.round(player.mmrChange);
-    player.mmrAfter = Math.ceil(player.mmrBefore + player.mmrChange, 0);  // Need to ensure that MMR doesn't drop below 0 under any circumstances.
+    player.mmrAfter = Math.max(player.mmrBefore + player.mmrChange, 0);  // Need to ensure that MMR doesn't drop below 0 under any circumstances.
     player.mmrChange = player.mmrAfter - player.mmrBefore;  // Update MMR adjustment to reflect possible bounding by 0.
     playersInfo.push(player);
   }
@@ -211,6 +211,8 @@ function getMmrChangeSummaryText(playersInfo) {
   let longestNameLength = 0;
   let longestMmrBeforeLength = 0;
   let longestMmrAfterLength = 0;
+  let longestMmrDeltaLength = 0;
+  let mmrDeltaTextMap = new Map();
 
   // Record lengths of names and MMRs
   for (const player of playersInfo) {
@@ -223,15 +225,20 @@ function getMmrChangeSummaryText(playersInfo) {
     if (String(player.mmrAfter).length > longestMmrAfterLength) {
       longestMmrAfterLength = String(player.mmrAfter).length;
     }
+    let mmrDeltaText = (player.mmrChange > 0 ? "+" : "") + player.mmrChange;
+    if (mmrDeltaText.length > longestMmrDeltaLength) {
+      longestMmrDeltaLength = mmrDeltaText.length;
+    }
+    mmrDeltaTextMap.set(player.name, mmrDeltaText);
   }
   
   let mmrAdjustmentText = "```Expected MMR Changes (unofficial)";
   for (const player of playersInfo) {
-    let mmrChangeText = (player.mmrChange > 0 ? "+" : "") + player.mmrChange;
+    let mmrDeltaText = mmrDeltaTextMap.get(player.name);
     mmrAdjustmentText += "\n" + player.name + " ".repeat(longestNameLength - player.name.length) + ": " +
         " ".repeat(longestMmrBeforeLength - String(player.mmrBefore).length) + player.mmrBefore + " --> " +
         " ".repeat(longestMmrAfterLength - String(player.mmrAfter).length) + player.mmrAfter + " (" +
-        " ".repeat(4 - mmrChangeText.length) + mmrChangeText + ")";
+        " ".repeat(longestMmrDeltaLength - mmrDeltaText.length) + mmrDeltaText + ")";
   }
 
   mmrAdjustmentText += "```\n-# Generated using https://cozyfog5.github.io. No warranty implied. May contain errors.";
